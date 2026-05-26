@@ -103,6 +103,7 @@
 
 /* ── Sidebar tokens — always dark to match our design system ── */
 :root {
+  --sidebar-width:              18rem;    /* wider than shadcn default 16rem */
   --sidebar:                    #0f1011;  /* surface-1 */
   --sidebar-foreground:         #f7f8f8;  /* ink */
   --sidebar-primary:            #6366f1;  /* primary */
