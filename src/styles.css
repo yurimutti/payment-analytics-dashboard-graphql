@@ -1,0 +1,100 @@
+@import "tailwindcss";
+@source ".";
+
+@theme {
+  /* ── Surface ladder ── */
+  --color-canvas:    #010102;
+  --color-surface-1: #0f1011;
+  --color-surface-2: #141516;
+  --color-surface-3: #18191a;
+  --color-surface-4: #191a1b;
+
+  /* ── Borders ── */
+  --color-hairline:          #23252a;
+  --color-hairline-strong:   #34343a;
+  --color-hairline-tertiary: #3e3e44;
+
+  /* ── Text ── */
+  --color-ink:          #f7f8f8;
+  --color-ink-muted:    #d0d6e0;
+  --color-ink-subtle:   #8a8f98;
+  --color-ink-tertiary: #62666d;
+
+  /* ── Brand accent (emerald) ── */
+  --color-brand:       #10b981;
+  --color-brand-hover: #34d399;
+
+  /* ── Primary CTA (indigo) ── */
+  --color-primary:            #6366f1;
+  --color-primary-hover:      #818cf8;
+  --color-primary-foreground: #ffffff;
+
+  /* ── shadcn semantic aliases ── */
+  --color-background:           var(--color-canvas);
+  --color-foreground:           var(--color-ink);
+  --color-card:                 var(--color-surface-1);
+  --color-card-foreground:      var(--color-ink);
+  --color-popover:              var(--color-surface-2);
+  --color-popover-foreground:   var(--color-ink);
+  --color-muted:                var(--color-surface-2);
+  --color-muted-foreground:     var(--color-ink-subtle);
+  --color-accent:               var(--color-surface-3);
+  --color-accent-foreground:    var(--color-ink);
+  --color-border:               var(--color-hairline);
+  --color-input:                var(--color-surface-2);
+  --color-ring:                 var(--color-primary);
+  --color-secondary:            var(--color-surface-1);
+  --color-secondary-foreground: var(--color-ink);
+  --color-destructive:          #ef4444;
+
+  /* ── Shadows ── */
+  --shadow-tiny:      0px 1px 1px 0px rgba(0,0,0,.09);
+  --shadow-low:       0px 1px 4px -1px rgba(0,0,0,.09);
+  --shadow-medium:    0px 3px 12px rgba(0,0,0,.09);
+  --shadow-high:      0px 7px 24px rgba(0,0,0,.06);
+
+  /* ── Typography ── */
+  --font-sans: "Inter", "SF Pro Display", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
+
+  /* ── Radius ── */
+  --radius-xs:  4px;
+  --radius-sm:  6px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius:     var(--radius-md);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-hairline);
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklch, var(--color-primary) 25%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar       { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-hairline-strong);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-hairline-tertiary);
+  }
+}
