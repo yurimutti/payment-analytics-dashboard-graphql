@@ -58,8 +58,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="none" className="border-r border-sidebar-border" {...props}>
 
-      {/* ── Brand ─────────────────────────────────────────────── */}
-      <SidebarHeader className="px-4 py-5">
+      <SidebarHeader className="h-14 px-4 justify-center">
         <Link to="/" className="flex items-center gap-3">
           <AppLogo size={36} />
           <div className="flex flex-col">
@@ -75,7 +74,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarSeparator />
 
-      {/* ── Nav ───────────────────────────────────────────────── */}
       <SidebarContent className="px-3 py-4">
         <SidebarGroup>
           <SidebarGroupLabel className="mb-2 px-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">

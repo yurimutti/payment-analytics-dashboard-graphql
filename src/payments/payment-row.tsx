@@ -1,7 +1,6 @@
 import { MoreHorizontal } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
-import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import {
   DropdownMenu,
@@ -11,9 +10,10 @@ import {
 } from "@/shared/ui/dropdown-menu";
 import { formatCurrency } from "@/shared/lib/currency";
 import { timeAgo } from "@/shared/lib/date";
-import type { Charge, ChargeStatus } from "./payment-types";
+import type { Charge } from "./payment-types";
+import { PaymentStatusBadge } from "./payment-status-badge";
 
-// ─── Helpers (same as recent-transactions) ────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function getInitials(charge: Charge): string {
   const name = charge.customer?.name;
@@ -29,29 +29,6 @@ function getDisplayName(charge: Charge): string {
 
 function getEmail(charge: Charge): string {
   return charge.customer?.email ?? charge.orderId ?? "—";
-}
-
-function statusVariant(status: ChargeStatus): "default" | "secondary" | "destructive" | "outline" {
-  if (status === "SUCCEEDED" || status === "PAID_OUT" || status === "AUTHORIZED") return "default";
-  if (status === "FAILED" || status === "EXPIRED") return "destructive";
-  if (status === "CANCELED" || status === "REFUNDED" || status === "PARTIALLY_REFUNDED") return "secondary";
-  return "outline";
-}
-
-function statusLabel(status: ChargeStatus): string {
-  const labels: Record<ChargeStatus, string> = {
-    SUCCEEDED:          "completed",
-    PAID_OUT:           "paid out",
-    AUTHORIZED:         "authorized",
-    PENDING:            "pending",
-    PENDING_PROCESSING: "processing",
-    FAILED:             "failed",
-    CANCELED:           "canceled",
-    REFUNDED:           "refunded",
-    PARTIALLY_REFUNDED: "partial refund",
-    EXPIRED:            "expired",
-  };
-  return labels[status] ?? status.toLowerCase();
 }
 
 // ─── Row ──────────────────────────────────────────────────────────────────────
@@ -88,9 +65,7 @@ export function PaymentRow({ charge }: PaymentRowProps) {
             </span>
           )}
 
-          <Badge variant={statusVariant(charge.status)} className="cursor-default">
-            {statusLabel(charge.status)}
-          </Badge>
+          <PaymentStatusBadge status={charge.status} />
 
           <div className="text-right">
             <p className="text-sm font-medium tabular-nums">

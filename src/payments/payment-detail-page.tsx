@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { PaymentStatusBadge } from "./payment-status-badge";
 import {
   Card,
   CardContent,
@@ -26,30 +27,7 @@ import { formatUnixDate, timeAgo } from "@/shared/lib/date";
 import { MOCK_CHARGES } from "./payments-mock";
 import type { Charge, ChargeStatus } from "./payment-types";
 
-// ─── Status config ────────────────────────────────────────────────────────────
-
-function statusVariant(s: ChargeStatus): "default" | "secondary" | "destructive" | "outline" {
-  if (s === "SUCCEEDED" || s === "PAID_OUT" || s === "AUTHORIZED") return "default";
-  if (s === "FAILED"    || s === "EXPIRED")                         return "destructive";
-  if (s === "CANCELED"  || s === "REFUNDED" || s === "PARTIALLY_REFUNDED") return "secondary";
-  return "outline";
-}
-
-function statusLabel(s: ChargeStatus): string {
-  const m: Record<ChargeStatus, string> = {
-    SUCCEEDED:          "Completed",
-    PAID_OUT:           "Paid Out",
-    AUTHORIZED:         "Authorized",
-    PENDING:            "Pending",
-    PENDING_PROCESSING: "Processing",
-    FAILED:             "Failed",
-    CANCELED:           "Canceled",
-    REFUNDED:           "Refunded",
-    PARTIALLY_REFUNDED: "Partial Refund",
-    EXPIRED:            "Expired",
-  };
-  return m[s] ?? s;
-}
+// ─── Status icon ──────────────────────────────────────────────────────────────
 
 function StatusIcon({ status }: { status: ChargeStatus }) {
   if (status === "SUCCEEDED" || status === "PAID_OUT")
@@ -212,9 +190,7 @@ export function PaymentDetailPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Badge variant={statusVariant(charge.status)} className="text-sm px-3 py-1">
-            {statusLabel(charge.status)}
-          </Badge>
+          <PaymentStatusBadge status={charge.status} className="text-sm px-3 py-1" />
           <Badge variant="outline" className="text-xs">
             {charge.livemode ? "Live" : "Test"}
           </Badge>
