@@ -114,7 +114,7 @@ export function AnalyticsSectionCards({ data, isLoading }: AnalyticsSectionCards
           <Card key={metric.title} className="@container/card cursor-pointer">
             <CardHeader>
               <CardDescription>{metric.title}</CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              <CardTitle className="min-w-0 truncate text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
                 {metric.value}
               </CardTitle>
               <CardAction>
