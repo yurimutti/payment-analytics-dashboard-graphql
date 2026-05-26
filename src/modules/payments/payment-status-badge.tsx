@@ -1,5 +1,5 @@
 import type { ChargeStatus } from "./payment-types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 const STATUS_CONFIG: Record<
   ChargeStatus,

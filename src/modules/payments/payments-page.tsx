@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { MOCK_CHARGES } from "./payments-mock";
 import { PaymentRow } from "./payment-row";
 import { PaymentFilters, type FilterState } from "./payment-filters";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/shared/ui/skeleton";
 import type { Charge } from "./payment-types";
 
 const PAGE_SIZE = 10;

@@ -4,8 +4,9 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { MOCK_CHARGES } from "./payments-mock";
 import { PaymentStatusBadge } from "./payment-status-badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { formatAmount, formatDate } from "@/lib/format";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { formatCurrency } from "@/shared/lib/currency";
+import { formatUnixDate } from "@/shared/lib/date";
 import type { Charge } from "./payment-types";
 
 // ─── Loading skeleton ──────────────────────────────────────────────────────────
@@ -108,9 +109,9 @@ export function PaymentDetailPage() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-2xl font-semibold tabular-nums text-ink">
-              {formatAmount(charge.amount, charge.currency)}
+              {formatCurrency(charge.amount, charge.currency)}
             </p>
-            <p className="mt-0.5 text-xs text-ink-tertiary">{formatDate(charge.createdAt)}</p>
+            <p className="mt-0.5 text-xs text-ink-tertiary">{formatUnixDate(charge.createdAt, "MMM d, yyyy")}</p>
           </div>
           <PaymentStatusBadge status={charge.status} />
         </div>

@@ -1,6 +1,7 @@
 import type { Charge } from "./payment-types";
 import { PaymentStatusBadge } from "./payment-status-badge";
-import { formatAmount, formatDate } from "@/lib/format";
+import { formatCurrency } from "@/shared/lib/currency";
+import { formatUnixDate } from "@/shared/lib/date";
 import { ChevronRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
@@ -32,9 +33,9 @@ export function PaymentRow({ charge }: PaymentRowProps) {
 
       <div className="text-right shrink-0">
         <p className="text-sm font-medium text-ink">
-          {formatAmount(charge.amount, charge.currency)}
+          {formatCurrency(charge.amount, charge.currency)}
         </p>
-        <p className="text-xs text-ink-tertiary">{formatDate(charge.createdAt)}</p>
+        <p className="text-xs text-ink-tertiary">{formatUnixDate(charge.createdAt, "MMM d, yyyy")}</p>
       </div>
 
       <ChevronRight size={14} className="shrink-0 text-ink-tertiary" />
