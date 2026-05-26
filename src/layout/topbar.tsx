@@ -21,7 +21,7 @@ export function Topbar() {
   if (!config) return null;
 
   return (
-    <header className="shrink-0 px-6 py-5">
+    <header className="shrink-0 px-4 py-5">
       <h1 className="text-xl font-semibold tracking-tight text-foreground">
         {config.title}
       </h1>

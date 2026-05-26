@@ -121,7 +121,7 @@ export function PaymentsPage() {
   const hasFilters = search !== "" || status !== "ALL";
 
   return (
-    <div className="flex-1 space-y-6 px-6 pt-6 pb-10">
+    <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
       <Card className="cursor-default">
         {/* Card header — title + filters */}
         <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-4">
