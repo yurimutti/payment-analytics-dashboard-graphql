@@ -162,7 +162,7 @@ export function PaymentDetailPage() {
     : "?";
 
   return (
-    <div className="flex-1 space-y-6 px-6 pt-6 pb-10">
+    <div className="flex-1 space-y-6 px-6 pt-8 pb-10">
 
       {/* Back */}
       <Link

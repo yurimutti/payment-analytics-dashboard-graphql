@@ -34,10 +34,10 @@ export function AnalyticsPage() {
   });
 
   return (
-    <div className="flex-1 space-y-6 px-6 pt-6">
+    <div className="flex-1 space-y-6 px-6 pt-8">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Analytics</h1>
         <p className="text-muted-foreground text-sm">
           {rangeStart} — {rangeEnd}
         </p>

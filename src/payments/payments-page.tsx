@@ -121,10 +121,10 @@ export function PaymentsPage() {
   const hasFilters = search !== "" || status !== "ALL";
 
   return (
-    <div className="flex-1 space-y-6 px-6 pt-6">
+    <div className="flex-1 space-y-6 px-6 pt-8 pb-10">
       {/* Page header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Payments</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Payments</h1>
         <p className="text-muted-foreground text-sm">Browse and filter all transactions</p>
       </div>
 
