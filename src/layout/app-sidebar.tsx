@@ -30,11 +30,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <Link to="/">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">
-                  M
+                  P
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">MONEI</span>
-                  <span className="truncate text-xs text-muted-foreground">Payment Analytics</span>
+                  <span className="truncate font-semibold">PayDash</span>
+                  <span className="truncate text-xs text-muted-foreground">Analytics</span>
                 </div>
               </Link>
             </SidebarMenuButton>
