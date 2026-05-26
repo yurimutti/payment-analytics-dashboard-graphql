@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BarChart3, CreditCard, Zap } from "lucide-react";
+import { BarChart3, CreditCard } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useRouterState } from "@tanstack/react-router";
 import { cn } from "@/shared/lib/utils";
@@ -7,7 +7,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
-  SidebarFooter,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -16,6 +15,36 @@ import {
   SidebarGroupLabel,
   SidebarSeparator,
 } from "@/shared/ui/sidebar";
+
+function AppLogo({ size = 36 }: { size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 64 64"
+      width={size}
+      height={size}
+    >
+      <defs>
+        <radialGradient id="sb-glow" cx="38%" cy="32%" r="62%">
+          <stop offset="0%"   stopColor="#818cf8" />
+          <stop offset="55%"  stopColor="#6366f1" />
+          <stop offset="100%" stopColor="#4338ca" />
+        </radialGradient>
+        <radialGradient id="sb-shine" cx="35%" cy="28%" r="45%">
+          <stop offset="0%"   stopColor="#ffffff" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="32" cy="32" r="32" fill="url(#sb-glow)" />
+      <circle cx="32" cy="32" r="32" fill="url(#sb-shine)" />
+      <g fill="white" opacity="0.92">
+        <rect x="14" y="38" width="8" height="12" rx="1.5" />
+        <rect x="28" y="28" width="8" height="22" rx="1.5" />
+        <rect x="42" y="18" width="8" height="32" rx="1.5" />
+      </g>
+    </svg>
+  );
+}
 
 const NAV_ITEMS = [
   { href: "/",         label: "Analytics", icon: BarChart3,  description: "KPIs & trends"   },
@@ -31,10 +60,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
       {/* ── Brand ─────────────────────────────────────────────── */}
       <SidebarHeader className="px-4 py-5">
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
-            <Zap size={20} strokeWidth={2.5} />
-          </div>
+        <Link to="/" className="flex items-center gap-3">
+          <AppLogo size={36} />
           <div className="flex flex-col">
             <span className="text-base font-bold leading-tight text-sidebar-foreground">
               PayDash
@@ -93,20 +120,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      {/* ── Footer ────────────────────────────────────────────── */}
-      <SidebarFooter className="px-4 py-4">
-        <SidebarSeparator className="mb-4" />
-        <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary text-xs font-bold">
-            YM
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-sidebar-foreground">Yuri Mutti</span>
-            <span className="text-xs text-muted-foreground">muttiyuri@gmail.com</span>
-          </div>
-        </div>
-      </SidebarFooter>
 
     </Sidebar>
   );
