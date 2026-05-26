@@ -118,8 +118,8 @@ export function AnalyticsSectionCards({ data, isLoading }: AnalyticsSectionCards
                 {metric.value}
               </CardTitle>
               <CardAction>
-                <Badge variant="outline">
-                  <TrendIcon className="h-4 w-4" />
+                <Badge variant="outline" className="gap-1.5 whitespace-nowrap">
+                  <TrendIcon className="h-4 w-4 shrink-0" />
                   {metric.change}
                 </Badge>
               </CardAction>
