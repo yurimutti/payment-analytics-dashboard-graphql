@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { PaymentsPage } from "@/modules/payments/payments-page";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/payments")({ component: PaymentsPage });
+// Layout shell — list lives in payments.index.tsx, detail in payments.$id.tsx
+export const Route = createFileRoute("/payments")({ component: () => <Outlet /> });
