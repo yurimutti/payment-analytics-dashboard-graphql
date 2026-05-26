@@ -23,7 +23,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const currentPath = location.pathname;
 
   return (
-    <Sidebar {...props}>
+    <Sidebar collapsible="none" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
