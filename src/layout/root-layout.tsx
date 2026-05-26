@@ -12,11 +12,11 @@ interface RootLayoutProps {
 
 export function RootLayout({ children }: RootLayoutProps) {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-screen overflow-hidden">
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className="flex flex-col overflow-hidden">
         <Topbar />
-        <main className="flex flex-1 flex-col gap-6 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </SidebarInset>
