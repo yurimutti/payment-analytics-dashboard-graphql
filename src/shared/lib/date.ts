@@ -5,6 +5,7 @@ import {
   startOfDay,
   endOfDay,
   isWithinInterval,
+  formatDistanceToNow,
 } from "date-fns";
 
 export type { Interval } from "date-fns";
@@ -51,4 +52,12 @@ export function formatChartTick(isoDate: string): string {
     month: "short",
     day: "numeric",
   });
+}
+
+/**
+ * Returns a human-readable "time ago" string from a Unix timestamp.
+ * e.g. 1761746741 → "2 hours ago"
+ */
+export function timeAgo(unixSeconds: number): string {
+  return formatDistanceToNow(fromUnixTime(unixSeconds), { addSuffix: true });
 }

@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
-import { Sidebar } from "./sidebar";
+import { AppSidebar } from "./app-sidebar";
 import { Topbar } from "./topbar";
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/shared/ui/sidebar";
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -8,14 +12,14 @@ interface RootLayoutProps {
 
 export function RootLayout({ children }: RootLayoutProps) {
   return (
-    <div className="flex h-screen overflow-hidden bg-canvas">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
         <Topbar />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex flex-1 flex-col gap-6 overflow-y-auto">
           {children}
         </main>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

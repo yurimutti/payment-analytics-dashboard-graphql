@@ -1,14 +1,10 @@
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { unixToISODate, formatChartDate, formatChartTick } from "@/shared/lib/date";
-import { centsToPreciseFloat, formatChartAmount } from "@/shared/lib/currency";
-
-
-
+import { unixToISODate, formatChartDate } from "@/shared/lib/date";
+import { centsToPreciseFloat } from "@/shared/lib/currency";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -27,21 +23,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select";
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/shared/ui/toggle-group";
+import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
 import type { KPIDataPoint, DateRangeOption } from "./analytics-types";
 
 const chartConfig = {
   amount: {
     label: "Volume (EUR)",
-    color: "var(--color-primary)",
+    color: "var(--primary)",
   },
   count: {
     label: "Transactions",
-    color: "var(--color-brand)",
+    color: "var(--primary)",
   },
 } satisfies ChartConfig;
 
@@ -81,112 +74,103 @@ export function AnalyticsChartInteractive({
   ];
 
   return (
-    <Card className="@container/card">
-      <CardHeader>
-        <CardTitle>Payment Volume</CardTitle>
-        <CardDescription>
-          <span className="hidden @[540px]/card:block">
-            Daily transaction volume for the selected period
-          </span>
-          <span className="@[540px]/card:hidden">Daily volume</span>
-        </CardDescription>
-        <CardAction>
-          {/* Desktop: toggle group */}
-          <ToggleGroup
-            type="single"
-            value={String(range)}
-            onValueChange={(v) => { if (v) onRangeChange(Number(v) as DateRangeOption); }}
-            variant="outline"
-            className="hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
-          >
-            <ToggleGroupItem value="7">7d</ToggleGroupItem>
-            <ToggleGroupItem value="30">30d</ToggleGroupItem>
-            <ToggleGroupItem value="90">90d</ToggleGroupItem>
-          </ToggleGroup>
-
-          {/* Mobile: select */}
+    <Card className="cursor-pointer">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div>
+          <CardTitle>Payment Volume</CardTitle>
+          <CardDescription>Daily transaction volume for the selected period</CardDescription>
+        </div>
+        <div className="flex items-center gap-2">
           <Select
             value={String(range)}
             onValueChange={(v) => onRangeChange(Number(v) as DateRangeOption)}
           >
-            <SelectTrigger
-              className="flex h-8 w-40 text-xs @[767px]/card:hidden"
-              aria-label="Select date range"
-            >
-              <SelectValue placeholder="Last 30 days" />
+            <SelectTrigger className="w-36 cursor-pointer">
+              <SelectValue />
             </SelectTrigger>
-            <SelectContent className="rounded-xl">
+            <SelectContent>
               {rangeOptions.map((o) => (
-                <SelectItem key={o.value} value={String(o.value)} className="rounded-lg">
+                <SelectItem key={o.value} value={String(o.value)} className="cursor-pointer">
                   {o.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </CardAction>
+          <Button variant="outline" className="cursor-pointer hidden sm:flex">
+            Export
+          </Button>
+        </div>
       </CardHeader>
 
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        {isLoading ? (
-          <Skeleton className="h-[250px] w-full rounded-lg" />
-        ) : (
-          <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
-            <AreaChart data={rows}>
-              <defs>
-                <linearGradient id="fillAmount" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="var(--color-amount)" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="var(--color-amount)" stopOpacity={0.05} />
-                </linearGradient>
-              </defs>
+      <CardContent className="p-0 pt-6">
+        <div className="px-6 pb-6">
+          {isLoading ? (
+            <Skeleton className="h-[350px] w-full rounded-lg" />
+          ) : (
+            <ChartContainer config={chartConfig} className="h-[350px] w-full">
+              <AreaChart data={rows} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="var(--color-amount)" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="var(--color-amount)" stopOpacity={0.05} />
+                  </linearGradient>
+                  <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="var(--color-count)" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="var(--color-count)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
 
-              <CartesianGrid vertical={false} stroke="var(--color-hairline)" />
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
 
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                minTickGap={32}
-                tick={{ fill: "var(--color-ink-subtle)", fontSize: 11 }}
-                tickFormatter={(v: string) => formatChartTick(v)}
-              />
+                <XAxis
+                  dataKey="date"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(v: string) =>
+                    new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                  }
+                />
 
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                tick={{ fill: "var(--color-ink-subtle)", fontSize: 11 }}
-                width={56}
-                tickFormatter={(v: number) => formatChartAmount(v)}
-              />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(v: number) =>
+                    v >= 1000 ? `€${(v / 1000).toFixed(0)}k` : `€${v}`
+                  }
+                />
 
-              <ChartTooltip
-                cursor={false}
-                content={
-                  <ChartTooltipContent
-                    labelFormatter={(value: string) => formatChartDate(value)}
-                    formatter={(value, name) => {
-                      if (name === "amount") {
-                        const formatted = `€${Number(value).toLocaleString("en-EU", { minimumFractionDigits: 2 })}`;
-                        return [formatted, "Volume"] as [string, string];
-                      }
-                      return [String(value), "Transactions"] as [string, string];
-                    }}
-                    indicator="dot"
-                  />
-                }
-              />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(value: string) => formatChartDate(value)}
+                    />
+                  }
+                />
 
-              <Area
-                dataKey="amount"
-                type="natural"
-                fill="url(#fillAmount)"
-                stroke="var(--color-amount)"
-                strokeWidth={2}
-                dot={false}
-              />
-            </AreaChart>
-          </ChartContainer>
-        )}
+                {/* Dashed secondary: transaction count (scaled for visual comparison) */}
+                <Area
+                  type="monotone"
+                  dataKey="count"
+                  stroke="var(--color-count)"
+                  fill="url(#colorCount)"
+                  strokeDasharray="5 5"
+                  strokeWidth={1}
+                />
+
+                {/* Main area: payment volume */}
+                <Area
+                  type="monotone"
+                  dataKey="amount"
+                  stroke="var(--color-amount)"
+                  fill="url(#colorAmount)"
+                  strokeWidth={1.5}
+                />
+              </AreaChart>
+            </ChartContainer>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

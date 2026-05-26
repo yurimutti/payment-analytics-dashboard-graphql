@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { AnalyticsSectionCards } from "./analytics-section-cards";
 import { AnalyticsChartInteractive } from "./analytics-chart-interactive";
+import { RecentTransactions } from "./recent-transactions";
 import { getMockAnalytics } from "./analytics-mock";
 import { daysAgo } from "@/shared/lib/date";
 import type { AnalyticsData, DateRangeOption } from "./analytics-types";
@@ -33,19 +34,30 @@ export function AnalyticsPage() {
   });
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <p className="text-xs text-ink-subtle">
-        {rangeStart} — {rangeEnd}
-      </p>
+    <div className="flex-1 space-y-6 px-6 pt-6">
+      {/* Header */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
+        <p className="text-muted-foreground text-sm">
+          {rangeStart} — {rangeEnd}
+        </p>
+      </div>
 
-      <AnalyticsSectionCards data={analytics} isLoading={isLoading} />
+      <div className="@container/main space-y-6">
+        {/* KPI cards */}
+        <AnalyticsSectionCards data={analytics} isLoading={isLoading} />
 
-      <AnalyticsChartInteractive
-        data={analytics?.data ?? []}
-        range={range}
-        onRangeChange={setRange}
-        isLoading={isLoading}
-      />
+        {/* Chart */}
+        <AnalyticsChartInteractive
+          data={analytics?.data ?? []}
+          range={range}
+          onRangeChange={setRange}
+          isLoading={isLoading}
+        />
+
+        {/* Recent transactions */}
+        <RecentTransactions isLoading={isLoading} />
+      </div>
     </div>
   );
 }
