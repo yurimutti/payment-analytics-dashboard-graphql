@@ -1,3 +1,5 @@
+export type DateRangeOption = 7 | 30 | 90;
+
 export interface KPITotal {
   succeededAmount: number;
   succeededCount: number;
@@ -12,7 +14,13 @@ export interface KPITotal {
 }
 
 export interface KPIDataPoint {
-  date: number; // Unix timestamp
-  amount: number;
+  date: number; // Unix timestamp (seconds)
+  amount: number; // cents
   count: number;
+}
+
+export interface AnalyticsData {
+  currency: string;
+  total: KPITotal;
+  data: KPIDataPoint[];
 }

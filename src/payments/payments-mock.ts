@@ -1,102 +1,91 @@
-import type { Charge } from "./payment-types";
+import type { Charge, ChargeStatus } from "./payment-types";
 
 const now = Math.floor(Date.now() / 1000);
 const DAY = 86_400;
 
-export const MOCK_CHARGES: Charge[] = [
-  {
-    id: "ch_001abc",
-    amount: 4999,
-    currency: "EUR",
-    status: "SUCCEEDED",
-    createdAt: now - DAY * 0,
-    updatedAt: now - DAY * 0,
-    orderId: "order_001",
-    livemode: false,
-    customer: { name: "Ana García", email: "ana@example.com" },
-    paymentMethod: { method: "card", card: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 } },
-    description: "Pro subscription",
-  },
-  {
-    id: "ch_002def",
-    amount: 1299,
-    currency: "EUR",
-    status: "FAILED",
-    createdAt: now - DAY * 1,
-    updatedAt: now - DAY * 1,
-    orderId: "order_002",
-    livemode: false,
-    customer: { name: "Carlos López", email: "carlos@example.com" },
-    paymentMethod: { method: "card", card: { brand: "mastercard", last4: "5555", expMonth: 8, expYear: 2025 } },
-    statusCode: "E101",
-    statusMessage: "Insufficient funds",
-  },
-  {
-    id: "ch_003ghi",
-    amount: 24900,
-    currency: "EUR",
-    status: "REFUNDED",
-    createdAt: now - DAY * 2,
-    updatedAt: now - DAY * 1,
-    orderId: "order_003",
-    livemode: false,
-    customer: { name: "Maria Costa", email: "maria@example.com" },
-    paymentMethod: { method: "bizum" },
-    description: "Annual plan",
-  },
-  {
-    id: "ch_004jkl",
-    amount: 799,
-    currency: "EUR",
-    status: "PENDING",
-    createdAt: now - DAY * 3,
-    updatedAt: now - DAY * 3,
-    livemode: false,
-    paymentMethod: { method: "card", card: { brand: "visa", last4: "1111", expMonth: 3, expYear: 2027 } },
-  },
-  {
-    id: "ch_005mno",
-    amount: 9900,
-    currency: "EUR",
-    status: "SUCCEEDED",
-    createdAt: now - DAY * 4,
-    updatedAt: now - DAY * 4,
-    orderId: "order_005",
-    livemode: false,
-    customer: { name: "Pedro Martínez", email: "pedro@example.com" },
-    paymentMethod: { method: "card", card: { brand: "amex", last4: "0005", expMonth: 11, expYear: 2028 } },
-    metadata: [{ key: "plan", value: "business" }, { key: "seats", value: "5" }],
-  },
-  {
-    id: "ch_006pqr",
-    amount: 3500,
-    currency: "EUR",
-    status: "CANCELED",
-    createdAt: now - DAY * 5,
-    updatedAt: now - DAY * 5,
-    livemode: false,
-    paymentMethod: { method: "sepa" },
-  },
-  {
-    id: "ch_007stu",
-    amount: 14900,
-    currency: "EUR",
-    status: "SUCCEEDED",
-    createdAt: now - DAY * 6,
-    updatedAt: now - DAY * 6,
-    orderId: "order_007",
-    livemode: false,
-    customer: { name: "Laura Fernández", email: "laura@example.com" },
-    paymentMethod: { method: "card", card: { brand: "visa", last4: "9999", expMonth: 7, expYear: 2026 } },
-  },
-  {
-    id: "ch_008vwx",
-    amount: 2000,
-    currency: "EUR",
-    status: "AUTHORIZED",
-    createdAt: now - DAY * 7,
-    updatedAt: now - DAY * 7,
-    livemode: false,
-    paymentMethod: { method: "card", card: { brand: "mastercard", last4: "3333", expMonth: 1, expYear: 2027 } },
-  },
+const statuses: ChargeStatus[] = [
+  "SUCCEEDED", "SUCCEEDED", "SUCCEEDED", "SUCCEEDED",
+  "FAILED", "FAILED",
+  "REFUNDED",
+  "PENDING",
+  "CANCELED",
+  "PARTIALLY_REFUNDED",
+  "AUTHORIZED",
 ];
+
+const methods = ["card", "card", "card", "bizum", "sepa", "paypal"];
+const brands   = ["visa", "mastercard", "amex"];
+const last4s   = ["4242", "5555", "0005", "1111", "3333", "9999", "2424", "8008"];
+const names    = [
+  "Ana García", "Carlos López", "Maria Costa", "Pedro Martínez",
+  "Laura Fernández", "Javier Ruiz", "Sofía Hernández", "Diego Torres",
+  "Elena Moreno", "Rafael Jiménez", "Isabela Sousa", "Mateo Alves",
+];
+const amounts  = [
+  499, 999, 1299, 1999, 2499, 4900, 9900, 14900, 24900, 49900, 99900, 199900,
+];
+
+function pick<T>(arr: T[], seed: number): T {
+  return arr[Math.abs(seed) % arr.length];
+}
+
+export const MOCK_CHARGES: Charge[] = Array.from({ length: 25 }, (_, i) => {
+  const status  = pick(statuses, i * 3 + 7);
+  const method  = pick(methods, i * 2 + 3);
+  const name    = pick(names, i * 5 + 1);
+  const amount  = pick(amounts, i * 4 + 2);
+  const last4   = pick(last4s, i * 6 + 4);
+  const brand   = pick(brands, i * 3 + 5);
+  const daysAgo = Math.floor(i * 1.5);
+
+  const charge: Charge = {
+    id: `ch_${(i + 1).toString().padStart(3, "0")}${Math.random().toString(36).slice(2, 6)}`,
+    amount,
+    currency: "EUR",
+    status,
+    createdAt: now - daysAgo * DAY - Math.floor(Math.random() * DAY),
+    updatedAt: now - daysAgo * DAY,
+    livemode: false,
+    orderId:  `order_${(i + 1).toString().padStart(4, "0")}`,
+  };
+
+  if (name) {
+    charge.customer = {
+      name,
+      email: `${name.toLowerCase().replace(" ", ".")}@example.com`,
+      phone: `+34 6${(Math.floor(Math.random() * 90_000_000) + 10_000_000).toString()}`,
+    };
+  }
+
+  if (method === "card") {
+    charge.paymentMethod = {
+      method: "card",
+      card: {
+        brand,
+        last4,
+        expMonth: ((i % 12) + 1),
+        expYear: 2026 + (i % 3),
+      },
+    };
+  } else {
+    charge.paymentMethod = { method };
+  }
+
+  if (status === "FAILED") {
+    charge.statusCode = "E101";
+    charge.statusMessage = pick(["Insufficient funds", "Card declined", "Invalid CVV"], i);
+  }
+
+  if (i % 5 === 0) {
+    charge.metadata = [
+      { key: "plan",  value: pick(["starter", "pro", "business"], i) },
+      { key: "seats", value: String((i % 10) + 1) },
+    ];
+  }
+
+  if (status === "PARTIALLY_REFUNDED" || status === "REFUNDED") {
+    charge.description = "Subscription — partial refund issued";
+  }
+
+  return charge;
+});
