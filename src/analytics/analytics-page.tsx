@@ -3,7 +3,6 @@ import { AnalyticsSectionCards } from "./analytics-section-cards";
 import { AnalyticsChartInteractive } from "./analytics-chart-interactive";
 import { RecentTransactions } from "./recent-transactions";
 import { getMockAnalytics } from "./analytics-mock";
-import { daysAgo } from "@/shared/lib/date";
 import type { AnalyticsData, DateRangeOption } from "./analytics-types";
 
 export function AnalyticsPage() {
@@ -22,27 +21,8 @@ export function AnalyticsPage() {
     return () => clearTimeout(timer);
   }, [range]);
 
-  const rangeStart = daysAgo(range).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-  const rangeEnd = new Date().toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-
   return (
-    <div className="flex-1 space-y-6 px-6 pt-8">
-      {/* Header */}
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Analytics</h1>
-        <p className="text-muted-foreground text-sm">
-          {rangeStart} — {rangeEnd}
-        </p>
-      </div>
-
+    <div className="flex-1 space-y-6 px-6 pt-6 pb-10">
       <div className="@container/main space-y-6">
         {/* KPI cards */}
         <AnalyticsSectionCards data={analytics} isLoading={isLoading} />

@@ -1,26 +1,31 @@
 import { useRouterState } from "@tanstack/react-router";
-import { Separator } from "@/shared/ui/separator";
 
-const ROUTE_TITLES: Record<string, string> = {
-  "/":         "Analytics",
-  "/payments": "Payments",
+interface RouteConfig {
+  title: string;
+  subtitle: string;
+}
+
+const ROUTE_CONFIG: Record<string, RouteConfig> = {
+  "/":         { title: "Analytics", subtitle: "KPIs, charts and recent activity"   },
+  "/payments": { title: "Payments",  subtitle: "Browse and filter all transactions" },
 };
 
 export function Topbar() {
   const { location } = useRouterState();
-  const segment = "/" + location.pathname.split("/").filter(Boolean)[0];
-  const title =
-    ROUTE_TITLES[segment === "/" ? "/" : segment] ??
-    ROUTE_TITLES[location.pathname] ??
-    "";
+  const pathname = location.pathname;
+
+  // Match /payments/$id → show "Payments" section header
+  const key = pathname === "/" ? "/" : "/" + pathname.split("/").filter(Boolean)[0];
+  const config = ROUTE_CONFIG[key];
+
+  if (!config) return null;
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b">
-      <div className="flex items-center gap-2 px-4 lg:px-6">
-        <span className="text-sm font-medium text-foreground">{title}</span>
-        <Separator orientation="vertical" className="mx-1 data-[orientation=vertical]:h-4" />
-        <span className="text-xs text-muted-foreground">Payment Analytics</span>
-      </div>
+    <header className="shrink-0 px-6 py-5">
+      <h1 className="text-xl font-semibold tracking-tight text-foreground">
+        {config.title}
+      </h1>
+      <p className="mt-0.5 text-sm text-muted-foreground">{config.subtitle}</p>
     </header>
   );
 }

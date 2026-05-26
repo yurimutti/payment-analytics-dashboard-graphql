@@ -58,7 +58,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="none" className="border-r border-sidebar-border" {...props}>
 
-      <SidebarHeader className="h-14 px-4 justify-center">
+      <SidebarHeader className="px-4 py-5">
         <Link to="/" className="flex items-center gap-3">
           <AppLogo size={36} />
           <div className="flex flex-col">
