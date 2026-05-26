@@ -101,26 +101,16 @@
   }
 }
 
+/* ── Sidebar tokens — always dark to match our design system ── */
 :root {
-  --sidebar:    hsl(0 0% 98%);
-  --sidebar-foreground:    hsl(240 5.3% 26.1%);
-  --sidebar-primary:    hsl(240 5.9% 10%);
-  --sidebar-primary-foreground:    hsl(0 0% 98%);
-  --sidebar-accent:    hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground:    hsl(240 5.9% 10%);
-  --sidebar-border:    hsl(220 13% 91%);
-  --sidebar-ring:    hsl(217.2 91.2% 59.8%);
-}
-
-.dark {
-  --sidebar:    hsl(240 5.9% 10%);
-  --sidebar-foreground:    hsl(240 4.8% 95.9%);
-  --sidebar-primary:    hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground:    hsl(0 0% 100%);
-  --sidebar-accent:    hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground:    hsl(240 4.8% 95.9%);
-  --sidebar-border:    hsl(240 3.7% 15.9%);
-  --sidebar-ring:    hsl(217.2 91.2% 59.8%);
+  --sidebar:                    #0f1011;  /* surface-1 */
+  --sidebar-foreground:         #f7f8f8;  /* ink */
+  --sidebar-primary:            #6366f1;  /* primary */
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:             #141516;  /* surface-2 */
+  --sidebar-accent-foreground:  #f7f8f8;  /* ink */
+  --sidebar-border:             #23252a;  /* hairline */
+  --sidebar-ring:               #6366f1;  /* primary */
 }
 
 @theme inline {
