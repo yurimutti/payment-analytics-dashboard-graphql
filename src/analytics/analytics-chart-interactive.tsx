@@ -29,8 +29,12 @@ import type { KPIDataPoint, DateRangeOption } from "./analytics-types";
 
 const chartConfig = {
   amount: {
-    label: "Volume (EUR)",
+    label: "Successful Volume",
     color: "var(--primary)",
+  },
+  failed: {
+    label: "Failed Volume",
+    color: "var(--destructive)",
   },
   count: {
     label: "Transactions",
@@ -41,8 +45,9 @@ const chartConfig = {
 function toChartRows(data: KPIDataPoint[]) {
   return data.map((d) => ({
     date:   unixToISODate(d.timestamp),
-    amount: centsToPreciseFloat(d.succeededAmount + d.capturedAmount),
-    count:  d.succeededCount + d.capturedCount,
+    amount: centsToPreciseFloat(d.succeededAmount),
+    failed: centsToPreciseFloat(d.failedAmount),
+    count:  d.succeededCount,
   }));
 }
 
@@ -66,6 +71,7 @@ export function AnalyticsChartInteractive({
   }, [isMobile, onRangeChange]);
 
   const rows = toChartRows(data);
+  const hasData = rows.some((r) => r.amount > 0 || r.failed > 0);
 
   const rangeOptions: { label: string; value: DateRangeOption }[] = [
     { label: "Last 7 days",  value: 7  },
@@ -106,6 +112,11 @@ export function AnalyticsChartInteractive({
         <div className="px-6 pb-6">
           {isLoading ? (
             <Skeleton className="h-[350px] w-full rounded-lg" />
+          ) : !hasData ? (
+            <div className="flex h-[350px] w-full flex-col items-center justify-center text-center gap-2">
+              <p className="text-sm font-medium text-muted-foreground">No transactions in this period</p>
+              <p className="text-xs text-muted-foreground">Try a wider date range or check back after new charges arrive</p>
+            </div>
           ) : (
           <ChartContainer config={chartConfig} className="h-[350px] w-full">
             <AreaChart data={rows} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
@@ -113,6 +124,10 @@ export function AnalyticsChartInteractive({
                 <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%"  stopColor="var(--color-amount)" stopOpacity={0.4} />
                   <stop offset="95%" stopColor="var(--color-amount)" stopOpacity={0.05} />
+                </linearGradient>
+                <linearGradient id="colorFailed" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor="var(--color-failed)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--color-failed)" stopOpacity={0.02} />
                 </linearGradient>
                 <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%"  stopColor="var(--color-count)" stopOpacity={0.2} />
@@ -151,10 +166,9 @@ export function AnalyticsChartInteractive({
 
               <Area
                 type="monotone"
-                dataKey="count"
-                stroke="var(--color-count)"
-                fill="url(#colorCount)"
-                strokeDasharray="5 5"
+                dataKey="failed"
+                stroke="var(--color-failed)"
+                fill="url(#colorFailed)"
                 strokeWidth={1}
               />
 

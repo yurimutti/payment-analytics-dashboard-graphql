@@ -44,22 +44,27 @@ interface Metric {
 }
 
 function deriveMetrics(data: AnalyticsData): Metric[] {
-  const { total } = data;
-  const successAmount  = total.succeededAmount + total.capturedAmount;
-  const successCount   = total.succeededCount  + total.capturedCount;
-  const totalAttempts  = successCount + total.failedCount + total.canceledCount + total.refundedCount;
-  const successRate    = totalAttempts > 0 ? Math.round((successCount / totalAttempts) * 100) : 0;
-  const failureRate    = totalAttempts > 0 ? Math.round((total.failedCount / totalAttempts) * 100) : 0;
-  const avgTxCents     = successCount > 0 ? Math.round(successAmount / successCount) : 0;
+  const { total, currency } = data;
+
+  const successAmount = total.succeededAmount;
+  const successCount  = total.succeededCount;
+
+  const totalAttempts = successCount + total.failedCount + total.canceledCount + total.refundedCount;
+
+  const successRate = totalAttempts > 0 ? Math.round((successCount / totalAttempts) * 100) : 0;
+  const failureRate = totalAttempts > 0 ? Math.round((total.failedCount / totalAttempts) * 100) : 0;
+  const avgTxCents  = successCount > 0 ? Math.round(successAmount / successCount) : 0;
 
   return [
     {
       title:     "Total Volume",
-      value:     formatCurrency(successAmount, "EUR"),
+      value:     formatCurrency(successAmount, currency),
       change:    `${successCount.toLocaleString()} payments`,
       trend:     "up",
-      footer:    "Succeeded & captured charges",
-      subfooter: `${successRate}% overall success rate`,
+      footer:    "Succeeded charges (auth + captured + paid out)",
+      subfooter: total.directCount > 0
+        ? `${formatCurrency(total.directAmount, currency)} direct · ${formatCurrency(total.capturedAmount, currency)} captured`
+        : `${successRate}% overall success rate`,
     },
     {
       title:     "Success Rate",
@@ -74,16 +79,20 @@ function deriveMetrics(data: AnalyticsData): Metric[] {
       value:     total.failedCount.toLocaleString(),
       change:    `${failureRate}% of attempts`,
       trend:     "down",
-      footer:    "No charge issued",
-      subfooter: "Review decline reasons",
+      footer:    formatCurrency(total.failedAmount, currency) + " in failed volume",
+      subfooter: total.canceledCount > 0
+        ? `${total.canceledCount.toLocaleString()} canceled`
+        : "Review decline reasons",
     },
     {
       title:     "Avg Transaction",
-      value:     formatCurrency(avgTxCents, "EUR"),
+      value:     formatCurrency(avgTxCents, currency),
       change:    `${successCount.toLocaleString()} payments`,
       trend:     "up",
       footer:    "Per successful payment",
-      subfooter: `${formatCurrency(total.refundedAmount, "EUR")} refunded`,
+      subfooter: total.refundedCount > 0
+        ? `${formatCurrency(total.refundedAmount, currency)} refunded (${total.refundedCount})`
+        : "No refunds in period",
     },
   ];
 }

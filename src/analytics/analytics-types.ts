@@ -5,6 +5,8 @@ export interface KPITotal {
   succeededCount: number;
   capturedAmount: number;
   capturedCount: number;
+  directAmount: number;
+  directCount: number;
   canceledAmount: number;
   canceledCount: number;
   refundedAmount: number;
@@ -14,11 +16,13 @@ export interface KPITotal {
 }
 
 export interface KPIDataPoint {
-  timestamp: number;       // Unix timestamp (seconds)
+  timestamp: number;
   succeededAmount: number;
   succeededCount: number;
   capturedAmount: number;
   capturedCount: number;
+  directAmount: number;
+  directCount: number;
   failedAmount: number;
   failedCount: number;
   canceledAmount: number;

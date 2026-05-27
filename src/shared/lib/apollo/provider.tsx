@@ -1,12 +1,8 @@
-import type { ReactNode } from "react";
 import { ApolloProvider as BaseApolloProvider } from "@apollo/client";
 import { apolloClient } from "./client";
+import type { PropsWithChildren } from "react";
 
-interface ApolloProviderProps {
-  children: ReactNode;
-}
-
-export function ApolloProvider({ children }: ApolloProviderProps) {
+export function ApolloProvider({ children }: PropsWithChildren) {
   return (
     <BaseApolloProvider client={apolloClient}>
       {children}

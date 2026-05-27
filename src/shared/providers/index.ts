@@ -1,1 +1,1 @@
-export { ApolloProvider } from "./apollo-provider";
+export { AllProviders } from "./providers";

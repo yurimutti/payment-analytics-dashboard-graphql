@@ -16,6 +16,8 @@ const ANALYTICS_KPI_QUERY = graphql(`
         succeededCount
         capturedAmount
         capturedCount
+        directAmount
+        directCount
         canceledAmount
         canceledCount
         refundedAmount
@@ -29,6 +31,8 @@ const ANALYTICS_KPI_QUERY = graphql(`
         succeededCount
         capturedAmount
         capturedCount
+        directAmount
+        directCount
         failedAmount
         failedCount
         canceledAmount
