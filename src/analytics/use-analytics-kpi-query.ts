@@ -1,3 +1,4 @@
+import type { ResultOf } from "@graphql-typed-document-node/core";
 import { useMemo } from "react";
 import { DEFAULT_CURRENCY } from "@/shared/config";
 import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
@@ -49,6 +50,11 @@ const ANALYTICS_KPI_QUERY = graphql(`
     }
   }
 `);
+
+export type AnalyticsData = NonNullable<
+  ResultOf<typeof ANALYTICS_KPI_QUERY>["chargesDateRangeKPI"]
+>;
+export type KPIDataPoint = AnalyticsData["data"][number];
 
 export function useAnalyticsKpiQuery({ range }: { range: DateRangeOption }) {
   const variables = useMemo(

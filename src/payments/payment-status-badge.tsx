@@ -1,5 +1,5 @@
+import type { ChargeStatus } from "@/shared/lib/graphql/gql/graphql";
 import { cn } from "@/shared/lib/utils";
-import type { ChargeStatus } from "./payment-types";
 
 const STATUS_CONFIG: Record<ChargeStatus, { label: string; className: string }> = {
   SUCCEEDED: {

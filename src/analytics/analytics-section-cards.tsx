@@ -10,8 +10,8 @@ import {
   CardTitle,
 } from "@/shared/ui/card";
 import { AnalyticsCardSkeleton } from "./analytics-card.skeleton";
-import type { AnalyticsData } from "./analytics-types";
 import { SECTION_CARDS_COUNT } from "./constants";
+import type { AnalyticsData } from "./use-analytics-kpi-query";
 
 interface AnalyticsSectionCardsProps {
   data: AnalyticsData | null;

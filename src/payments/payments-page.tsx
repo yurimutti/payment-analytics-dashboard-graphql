@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
+import type { ChargeStatus } from "@/shared/lib/graphql/gql/graphql";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -19,7 +20,6 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { PAGE_SIZE, SEARCH_DEBOUNCE_MS } from "./constants";
 import { PaymentRow } from "./payment-row";
 import { PaymentRowSkeleton } from "./payment-row.skeleton";
-import type { ChargeStatus } from "./payment-types";
 import { usePaymentsQuery } from "./use-payments-query";
 
 const ALL_STATUSES: { value: ChargeStatus | "ALL"; label: string }[] = [

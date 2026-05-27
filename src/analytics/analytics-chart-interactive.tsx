@@ -13,7 +13,8 @@ import {
 } from "@/shared/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
-import type { DateRangeOption, KPIDataPoint } from "./analytics-types";
+import type { DateRangeOption } from "./analytics-types";
+import type { KPIDataPoint } from "./use-analytics-kpi-query";
 
 const chartConfig = {
   amount: {

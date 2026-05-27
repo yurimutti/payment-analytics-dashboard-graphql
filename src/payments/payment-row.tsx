@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { PaymentStatusBadge } from "./payment-status-badge";
-import type { Charge } from "./payment-types";
+import type { Charge } from "./use-payments-query";
 
 function getInitials(charge: Charge): string {
   const name = charge.customer?.name;

@@ -266,7 +266,6 @@ export function PaymentDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Metadata */}
           {metadata && metadata.length > 0 && (
             <Card>
               <CardHeader className="pb-2">

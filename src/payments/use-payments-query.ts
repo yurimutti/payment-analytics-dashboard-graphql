@@ -1,6 +1,7 @@
+import type { ResultOf } from "@graphql-typed-document-node/core";
 import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
-import type { ChargeStatus } from "./payment-types";
+import type { ChargeStatus } from "@/shared/lib/graphql/gql/graphql";
 
 const CHARGES_QUERY = graphql(`
   query Charges(
@@ -29,6 +30,8 @@ const CHARGES_QUERY = graphql(`
     }
   }
 `);
+
+export type Charge = ResultOf<typeof CHARGES_QUERY>["charges"]["items"][number];
 
 interface UsePaymentsQueryParams {
   search?: string;
