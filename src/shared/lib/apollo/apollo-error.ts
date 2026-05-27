@@ -5,9 +5,11 @@ export function getApolloErrorMessage(error: unknown): string {
     if (error.graphQLErrors.length > 0) {
       return error.graphQLErrors[0].message;
     }
-    const ne = error.networkError as unknown as
-      | { statusCode?: number; bodyText?: string; message?: string }
-      | null;
+    const ne = error.networkError as unknown as {
+      statusCode?: number;
+      bodyText?: string;
+      message?: string;
+    } | null;
     if (ne) {
       if (ne.bodyText !== undefined) return "The server returned an invalid response.";
       if (ne.statusCode !== undefined) return "The server is unavailable. Please try again.";

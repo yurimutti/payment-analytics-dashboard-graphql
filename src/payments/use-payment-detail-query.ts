@@ -1,6 +1,6 @@
-import { useQuery, getApolloErrorMessage } from "@/shared/lib/apollo";
-import { graphql } from "@/shared/lib/graphql";
 import type { ResultOf } from "@graphql-typed-document-node/core";
+import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
+import { graphql } from "@/shared/lib/graphql";
 
 const CHARGE_QUERY = graphql(`
   query Charge($id: ID!) {

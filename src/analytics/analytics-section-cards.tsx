@@ -1,4 +1,6 @@
 import { TrendingDown, TrendingUp } from "lucide-react";
+import { formatCurrency } from "@/shared/lib/currency";
+import { Badge } from "@/shared/ui/badge";
 import {
   Card,
   CardAction,
@@ -7,10 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/ui/card";
-import { Badge } from "@/shared/ui/badge";
-import { formatCurrency } from "@/shared/lib/currency";
-import type { AnalyticsData } from "./analytics-types";
 import { AnalyticsCardSkeleton } from "./analytics-card.skeleton";
+import type { AnalyticsData } from "./analytics-types";
 import { SECTION_CARDS_COUNT } from "./constants";
 
 interface AnalyticsSectionCardsProps {
@@ -31,52 +31,56 @@ function deriveMetrics(data: AnalyticsData): Metric[] {
   const { total, currency } = data;
 
   const successAmount = total.succeededAmount;
-  const successCount  = total.succeededCount;
+  const successCount = total.succeededCount;
 
-  const totalAttempts = successCount + total.failedCount + total.canceledCount + total.refundedCount;
+  const totalAttempts =
+    successCount + total.failedCount + total.canceledCount + total.refundedCount;
 
   const successRate = totalAttempts > 0 ? Math.round((successCount / totalAttempts) * 100) : 0;
   const failureRate = totalAttempts > 0 ? Math.round((total.failedCount / totalAttempts) * 100) : 0;
-  const avgTxCents  = successCount > 0 ? Math.round(successAmount / successCount) : 0;
+  const avgTxCents = successCount > 0 ? Math.round(successAmount / successCount) : 0;
 
   return [
     {
-      title:     "Total Volume",
-      value:     formatCurrency(successAmount, currency),
-      change:    `${successCount.toLocaleString()} payments`,
-      trend:     "up",
-      footer:    "Succeeded charges (auth + captured + paid out)",
-      subfooter: total.directCount > 0
-        ? `${formatCurrency(total.directAmount, currency)} direct · ${formatCurrency(total.capturedAmount, currency)} captured`
-        : `${successRate}% overall success rate`,
+      title: "Total Volume",
+      value: formatCurrency(successAmount, currency),
+      change: `${successCount.toLocaleString()} payments`,
+      trend: "up",
+      footer: "Succeeded charges (auth + captured + paid out)",
+      subfooter:
+        total.directCount > 0
+          ? `${formatCurrency(total.directAmount, currency)} direct · ${formatCurrency(total.capturedAmount, currency)} captured`
+          : `${successRate}% overall success rate`,
     },
     {
-      title:     "Success Rate",
-      value:     `${successRate}%`,
-      change:    `${successCount.toLocaleString()} of ${totalAttempts.toLocaleString()}`,
-      trend:     successRate >= 75 ? "up" : "down",
-      footer:    successRate >= 75 ? "Above target threshold" : "Below target threshold",
+      title: "Success Rate",
+      value: `${successRate}%`,
+      change: `${successCount.toLocaleString()} of ${totalAttempts.toLocaleString()}`,
+      trend: successRate >= 75 ? "up" : "down",
+      footer: successRate >= 75 ? "Above target threshold" : "Below target threshold",
       subfooter: `${totalAttempts.toLocaleString()} total attempts`,
     },
     {
-      title:     "Failed",
-      value:     total.failedCount.toLocaleString(),
-      change:    `${failureRate}% of attempts`,
-      trend:     "down",
-      footer:    formatCurrency(total.failedAmount, currency) + " in failed volume",
-      subfooter: total.canceledCount > 0
-        ? `${total.canceledCount.toLocaleString()} canceled`
-        : "Review decline reasons",
+      title: "Failed",
+      value: total.failedCount.toLocaleString(),
+      change: `${failureRate}% of attempts`,
+      trend: "down",
+      footer: `${formatCurrency(total.failedAmount, currency)} in failed volume`,
+      subfooter:
+        total.canceledCount > 0
+          ? `${total.canceledCount.toLocaleString()} canceled`
+          : "Review decline reasons",
     },
     {
-      title:     "Avg Transaction",
-      value:     formatCurrency(avgTxCents, currency),
-      change:    `${successCount.toLocaleString()} payments`,
-      trend:     "up",
-      footer:    "Per successful payment",
-      subfooter: total.refundedCount > 0
-        ? `${formatCurrency(total.refundedAmount, currency)} refunded (${total.refundedCount})`
-        : "No refunds in period",
+      title: "Avg Transaction",
+      value: formatCurrency(avgTxCents, currency),
+      change: `${successCount.toLocaleString()} payments`,
+      trend: "up",
+      footer: "Per successful payment",
+      subfooter:
+        total.refundedCount > 0
+          ? `${formatCurrency(total.refundedAmount, currency)} refunded (${total.refundedCount})`
+          : "No refunds in period",
     },
   ];
 }
@@ -85,7 +89,9 @@ export function AnalyticsSectionCards({ data, isLoading }: AnalyticsSectionCards
   if (isLoading || !data) {
     return (
       <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: SECTION_CARDS_COUNT }).map((_, i) => <AnalyticsCardSkeleton key={i} />)}
+        {Array.from({ length: SECTION_CARDS_COUNT }).map((_, i) => (
+          <AnalyticsCardSkeleton key={i} />
+        ))}
       </div>
     );
   }

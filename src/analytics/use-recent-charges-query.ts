@@ -1,7 +1,7 @@
-import { useQuery, getApolloErrorMessage } from "@/shared/lib/apollo";
-import { graphql } from "@/shared/lib/graphql";
 import type { ResultOf } from "@graphql-typed-document-node/core";
 import { RECENT_TRANSACTIONS_SIZE } from "@/payments/constants";
+import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
+import { graphql } from "@/shared/lib/graphql";
 
 const RECENT_CHARGES_QUERY = graphql(`
   query RecentCharges($size: Int) {

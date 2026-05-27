@@ -90,8 +90,13 @@
     outline-offset: 2px;
   }
 
-  ::-webkit-scrollbar       { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
   ::-webkit-scrollbar-thumb {
     background: var(--color-hairline-strong);
     border-radius: 9999px;
@@ -103,15 +108,15 @@
 
 /* ── Sidebar tokens — always dark to match our design system ── */
 :root {
-  --sidebar-width:              18rem;    /* wider than shadcn default 16rem */
-  --sidebar:                    #0f1011;  /* surface-1 */
-  --sidebar-foreground:         #f7f8f8;  /* ink */
-  --sidebar-primary:            #6366f1;  /* primary */
+  --sidebar-width: 18rem; /* wider than shadcn default 16rem */
+  --sidebar: #0f1011; /* surface-1 */
+  --sidebar-foreground: #f7f8f8; /* ink */
+  --sidebar-primary: #6366f1; /* primary */
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent:             #141516;  /* surface-2 */
-  --sidebar-accent-foreground:  #f7f8f8;  /* ink */
-  --sidebar-border:             #23252a;  /* hairline */
-  --sidebar-ring:               #6366f1;  /* primary */
+  --sidebar-accent: #141516; /* surface-2 */
+  --sidebar-accent-foreground: #f7f8f8; /* ink */
+  --sidebar-border: #23252a; /* hairline */
+  --sidebar-ring: #6366f1; /* primary */
 }
 
 @theme inline {

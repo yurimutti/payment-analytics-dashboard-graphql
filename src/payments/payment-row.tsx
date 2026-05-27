@@ -1,5 +1,7 @@
-import { MoreHorizontal } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { MoreHorizontal } from "lucide-react";
+import { formatCurrency } from "@/shared/lib/currency";
+import { timeAgo } from "@/shared/lib/date";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -9,16 +11,19 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
-import { formatCurrency } from "@/shared/lib/currency";
-import { timeAgo } from "@/shared/lib/date";
-import type { Charge } from "./payment-types";
-import { PaymentStatusBadge } from "./payment-status-badge";
 import { INITIALS_LENGTH } from "./constants";
+import { PaymentStatusBadge } from "./payment-status-badge";
+import type { Charge } from "./payment-types";
 
 function getInitials(charge: Charge): string {
   const name = charge.customer?.name;
   if (name) {
-    return name.split(" ").map((w) => w[0]).join("").slice(0, INITIALS_LENGTH).toUpperCase();
+    return name
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, INITIALS_LENGTH)
+      .toUpperCase();
   }
   return charge.id.slice(0, INITIALS_LENGTH).toUpperCase();
 }
@@ -45,22 +50,22 @@ export function PaymentRow({ charge }: PaymentRowProps) {
       </Avatar>
 
       <div className="flex flex-1 items-center gap-x-3 gap-y-2 min-w-0 flex-wrap">
-        <Link
-          to="/payments/$id"
-          params={{ id: charge.id }}
-          className="min-w-32 flex-1"
-        >
+        <Link to="/payments/$id" params={{ id: charge.id }} className="min-w-32 flex-1">
           <Tooltip>
             <TooltipTrigger asChild>
               <p className="text-sm font-medium truncate">{getDisplayName(charge)}</p>
             </TooltipTrigger>
-            <TooltipContent side="top" align="start">{getDisplayName(charge)}</TooltipContent>
+            <TooltipContent side="top" align="start">
+              {getDisplayName(charge)}
+            </TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <p className="text-xs text-muted-foreground truncate">{getEmail(charge)}</p>
             </TooltipTrigger>
-            <TooltipContent side="bottom" align="start">{getEmail(charge)}</TooltipContent>
+            <TooltipContent side="bottom" align="start">
+              {getEmail(charge)}
+            </TooltipContent>
           </Tooltip>
         </Link>
 
@@ -77,7 +82,9 @@ export function PaymentRow({ charge }: PaymentRowProps) {
             <p className="text-sm font-medium tabular-nums whitespace-nowrap">
               {formatCurrency(charge.amount ?? 0, charge.currency)}
             </p>
-            <p className="text-xs text-muted-foreground truncate max-w-16 sm:max-w-24">{timeAgo(charge.createdAt ?? 0)}</p>
+            <p className="text-xs text-muted-foreground truncate max-w-16 sm:max-w-24">
+              {timeAgo(charge.createdAt ?? 0)}
+            </p>
           </div>
 
           <DropdownMenu>

@@ -1,10 +1,7 @@
 import type { ReactNode } from "react";
+import { SidebarInset, SidebarProvider } from "@/shared/ui/sidebar";
 import { AppSidebar } from "./app-sidebar";
 import { Topbar } from "./topbar";
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/shared/ui/sidebar";
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -16,9 +13,7 @@ export function RootLayout({ children }: RootLayoutProps) {
       <AppSidebar />
       <SidebarInset className="flex flex-col overflow-hidden">
         <Topbar />
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

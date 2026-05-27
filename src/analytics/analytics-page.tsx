@@ -1,24 +1,19 @@
 import { useState } from "react";
-import { AnalyticsSectionCards } from "./analytics-section-cards";
-import { AnalyticsChartInteractive } from "./analytics-chart-interactive";
-import { RecentTransactions } from "./recent-transactions";
 import { ErrorState } from "@/shared/ui/error-state";
 import { InlineWarning } from "@/shared/ui/inline-warning";
+import { AnalyticsChartInteractive } from "./analytics-chart-interactive";
+import { AnalyticsSectionCards } from "./analytics-section-cards";
 import type { DateRangeOption } from "./analytics-types";
 import { DEFAULT_RANGE_DAYS } from "./constants";
+import { RecentTransactions } from "./recent-transactions";
 import { useAnalyticsKpiQuery } from "./use-analytics-kpi-query";
 
 export function AnalyticsPage() {
   const [range, setRange] = useState<DateRangeOption>(DEFAULT_RANGE_DAYS);
 
-  const {
-    analytics,
-    loading,
-    error,
-    errorMessage,
-    refetch,
-    hasData,
-  } = useAnalyticsKpiQuery({ range });
+  const { analytics, loading, error, errorMessage, refetch, hasData } = useAnalyticsKpiQuery({
+    range,
+  });
 
   if (error && !hasData) {
     return (

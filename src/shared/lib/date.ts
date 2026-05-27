@@ -1,11 +1,11 @@
 import {
-  format,
-  fromUnixTime,
-  subDays,
-  startOfDay,
   endOfDay,
-  isWithinInterval,
+  format,
   formatDistanceToNow,
+  fromUnixTime,
+  isWithinInterval,
+  startOfDay,
+  subDays,
 } from "date-fns";
 
 export type { Interval } from "date-fns";
@@ -30,11 +30,7 @@ export function daysAgo(n: number): Date {
   return subDays(new Date(), n);
 }
 
-export function isUnixInRange(
-  unixSeconds: number,
-  from: Date,
-  to: Date,
-): boolean {
+export function isUnixInRange(unixSeconds: number, from: Date, to: Date): boolean {
   const d = fromUnixTime(unixSeconds);
   return isWithinInterval(d, { start: startOfDay(from), end: endOfDay(to) });
 }

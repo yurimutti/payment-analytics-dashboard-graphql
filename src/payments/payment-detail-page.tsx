@@ -1,31 +1,25 @@
-import { useParams, Link } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import {
-  ArrowLeft,
-  CreditCard,
-  User,
-  Hash,
-  Tag,
   AlertCircle,
+  ArrowLeft,
   CheckCircle2,
   Clock,
+  CreditCard,
+  Hash,
+  Tag,
+  User,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
-import { Badge } from "@/shared/ui/badge";
-import { ErrorState } from "@/shared/ui/error-state";
-import { PaymentStatusBadge } from "./payment-status-badge";
-import { PaymentDetailSkeleton } from "./payment-detail.skeleton";
-import { INITIALS_LENGTH } from "./constants";
-import { usePaymentDetailQuery, type ChargeDetail } from "./use-payment-detail-query";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/card";
-import { Separator } from "@/shared/ui/separator";
 import { formatCurrency } from "@/shared/lib/currency";
 import { formatUnixDate, timeAgo } from "@/shared/lib/date";
+import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
+import { Badge } from "@/shared/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
+import { ErrorState } from "@/shared/ui/error-state";
+import { Separator } from "@/shared/ui/separator";
+import { INITIALS_LENGTH } from "./constants";
+import { PaymentDetailSkeleton } from "./payment-detail.skeleton";
+import { PaymentStatusBadge } from "./payment-status-badge";
+import { type ChargeDetail, usePaymentDetailQuery } from "./use-payment-detail-query";
 
 type ChargeStatus = ChargeDetail["status"];
 
@@ -120,7 +114,12 @@ export function PaymentDetailPage() {
   } = payment;
 
   const customerInitials = customer?.name
-    ? customer.name.split(" ").map((w) => w[0]).join("").slice(0, INITIALS_LENGTH).toUpperCase()
+    ? customer.name
+        .split(" ")
+        .map((w) => w[0])
+        .join("")
+        .slice(0, INITIALS_LENGTH)
+        .toUpperCase()
     : "?";
 
   return (
@@ -160,7 +159,6 @@ export function PaymentDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_minmax(280px,360px)]">
         <div className="space-y-4">
-
           {paymentMethod && (
             <Card>
               <CardHeader className="pb-2">
@@ -168,19 +166,21 @@ export function PaymentDetailPage() {
                   <CreditCard size={15} className="text-muted-foreground" />
                   <CardTitle className="text-sm font-semibold">Payment Method</CardTitle>
                 </div>
-                <CardDescription className="capitalize">
-                  {paymentMethod.method}
-                </CardDescription>
+                <CardDescription className="capitalize">{paymentMethod.method}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Separator className="mb-3" />
                 {paymentMethod.card ? (
                   <>
                     {paymentMethod.card.brand && (
-                      <Row label="Brand"  value={paymentMethod.card.brand.toUpperCase()} />
+                      <Row label="Brand" value={paymentMethod.card.brand.toUpperCase()} />
                     )}
                     {paymentMethod.card.last4 && (
-                      <Row label="Number" value={`•••• •••• •••• ${paymentMethod.card.last4}`} mono />
+                      <Row
+                        label="Number"
+                        value={`•••• •••• •••• ${paymentMethod.card.last4}`}
+                        mono
+                      />
                     )}
                     {paymentMethod.card.expiration && (
                       <Row
@@ -219,7 +219,7 @@ export function PaymentDetailPage() {
                   </div>
                 </div>
                 <Separator className="mb-3" />
-                {customer.name  && <Row label="Name"  value={customer.name} />}
+                {customer.name && <Row label="Name" value={customer.name} />}
                 {customer.email && <Row label="Email" value={customer.email} />}
                 {customer.phone && <Row label="Phone" value={customer.phone} />}
               </CardContent>
@@ -236,13 +236,12 @@ export function PaymentDetailPage() {
               </CardHeader>
               <CardContent>
                 <Separator className="mb-3" />
-                {description   && <Row label="Description"    value={description} />}
-                {descriptor    && <Row label="Descriptor"     value={descriptor} />}
+                {description && <Row label="Description" value={description} />}
+                {descriptor && <Row label="Descriptor" value={descriptor} />}
                 {statusMessage && <Row label="Status message" value={statusMessage} />}
               </CardContent>
             </Card>
           )}
-
         </div>
 
         <div className="space-y-4">
@@ -255,18 +254,12 @@ export function PaymentDetailPage() {
             </CardHeader>
             <CardContent>
               <Separator className="mb-3" />
-              <Row label="Payment ID"   value={paymentId}     mono copyable />
-              {orderId    && <Row label="Order ID"    value={orderId}    mono copyable />}
+              <Row label="Payment ID" value={paymentId} mono copyable />
+              {orderId && <Row label="Order ID" value={orderId} mono copyable />}
               {sequenceId && <Row label="Sequence ID" value={sequenceId} mono copyable />}
               {statusCode && <Row label="Status code" value={statusCode} mono />}
-              <Row
-                label="Created"
-                value={formatUnixDate(createdAt ?? 0, "MMM d, yyyy HH:mm:ss")}
-              />
-              <Row
-                label="Updated"
-                value={formatUnixDate(updatedAt ?? 0, "MMM d, yyyy HH:mm:ss")}
-              />
+              <Row label="Created" value={formatUnixDate(createdAt ?? 0, "MMM d, yyyy HH:mm:ss")} />
+              <Row label="Updated" value={formatUnixDate(updatedAt ?? 0, "MMM d, yyyy HH:mm:ss")} />
             </CardContent>
           </Card>
 
@@ -278,7 +271,9 @@ export function PaymentDetailPage() {
                   <Tag size={15} className="text-muted-foreground" />
                   <CardTitle className="text-sm font-semibold">Metadata</CardTitle>
                 </div>
-                <CardDescription>{metadata.length} key{metadata.length !== 1 ? "s" : ""}</CardDescription>
+                <CardDescription>
+                  {metadata.length} key{metadata.length !== 1 ? "s" : ""}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Separator className="mb-3" />
@@ -288,7 +283,6 @@ export function PaymentDetailPage() {
               </CardContent>
             </Card>
           )}
-
         </div>
       </div>
     </div>

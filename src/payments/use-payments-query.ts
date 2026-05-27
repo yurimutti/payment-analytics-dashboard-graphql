@@ -1,4 +1,4 @@
-import { useQuery, getApolloErrorMessage } from "@/shared/lib/apollo";
+import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
 import type { ChargeStatus } from "./payment-types";
 

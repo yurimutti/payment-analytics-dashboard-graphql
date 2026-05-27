@@ -1,18 +1,17 @@
-import * as React from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { BarChart3, CreditCard } from "lucide-react";
-import { Link } from "@tanstack/react-router";
-import { useRouterState } from "@tanstack/react-router";
+import type * as React from "react";
 import { cn } from "@/shared/lib/utils";
 import {
   Sidebar,
   SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarSeparator,
 } from "@/shared/ui/sidebar";
 
@@ -23,15 +22,17 @@ function AppLogo({ size = 36 }: { size?: number }) {
       viewBox="0 0 64 64"
       width={size}
       height={size}
+      role="img"
+      aria-label="PayDash logo"
     >
       <defs>
         <radialGradient id="sb-glow" cx="38%" cy="32%" r="62%">
-          <stop offset="0%"   stopColor="#818cf8" />
-          <stop offset="55%"  stopColor="#6366f1" />
+          <stop offset="0%" stopColor="#818cf8" />
+          <stop offset="55%" stopColor="#6366f1" />
           <stop offset="100%" stopColor="#4338ca" />
         </radialGradient>
         <radialGradient id="sb-shine" cx="35%" cy="28%" r="45%">
-          <stop offset="0%"   stopColor="#ffffff" stopOpacity="0.22" />
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.22" />
           <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
         </radialGradient>
       </defs>
@@ -47,8 +48,8 @@ function AppLogo({ size = 36 }: { size?: number }) {
 }
 
 const NAV_ITEMS = [
-  { href: "/",         label: "Analytics", icon: BarChart3,  description: "KPIs & trends"   },
-  { href: "/payments", label: "Payments",  icon: CreditCard, description: "All transactions" },
+  { href: "/", label: "Analytics", icon: BarChart3, description: "KPIs & trends" },
+  { href: "/payments", label: "Payments", icon: CreditCard, description: "All transactions" },
 ];
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
@@ -57,7 +58,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border" {...props}>
-
       <SidebarHeader className="px-4 py-5">
         <Link to="/" className="flex items-center gap-3">
           <AppLogo size={36} />
@@ -65,9 +65,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             <span className="text-base font-bold leading-tight text-sidebar-foreground">
               PayDash
             </span>
-            <span className="text-xs text-muted-foreground leading-tight">
-              Analytics Platform
-            </span>
+            <span className="text-xs text-muted-foreground leading-tight">Analytics Platform</span>
           </div>
         </Link>
       </SidebarHeader>
@@ -82,8 +80,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
               {NAV_ITEMS.map(({ href, label, icon: Icon, description }) => {
-                const isActive =
-                  href === "/" ? currentPath === "/" : currentPath.startsWith(href);
+                const isActive = href === "/" ? currentPath === "/" : currentPath.startsWith(href);
                 return (
                   <SidebarMenuItem key={href}>
                     <SidebarMenuButton
@@ -97,17 +94,21 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       )}
                     >
                       <Link to={href} className="flex items-center gap-3">
-                        <div className={cn(
-                          "flex size-8 shrink-0 items-center justify-center rounded-md",
-                          isActive
-                            ? "bg-primary/15 text-primary"
-                            : "bg-sidebar-accent text-muted-foreground",
-                        )}>
+                        <div
+                          className={cn(
+                            "flex size-8 shrink-0 items-center justify-center rounded-md",
+                            isActive
+                              ? "bg-primary/15 text-primary"
+                              : "bg-sidebar-accent text-muted-foreground",
+                          )}
+                        >
                           <Icon size={16} />
                         </div>
                         <div className="flex flex-col">
                           <span className="text-sm font-medium leading-tight">{label}</span>
-                          <span className="text-xs text-muted-foreground leading-tight">{description}</span>
+                          <span className="text-xs text-muted-foreground leading-tight">
+                            {description}
+                          </span>
                         </div>
                       </Link>
                     </SidebarMenuButton>
@@ -118,7 +119,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
     </Sidebar>
   );
 }

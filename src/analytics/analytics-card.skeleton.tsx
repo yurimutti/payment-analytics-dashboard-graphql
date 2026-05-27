@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardAction,
-  CardFooter,
-  CardHeader,
-} from "@/shared/ui/card";
+import { Card, CardAction, CardFooter, CardHeader } from "@/shared/ui/card";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 export function AnalyticsCardSkeleton() {

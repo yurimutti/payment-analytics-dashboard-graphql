@@ -7,15 +7,15 @@ interface RouteConfig {
 }
 
 const ROUTE_CONFIG: Record<string, RouteConfig> = {
-  "/":         { title: "Analytics", subtitle: "KPIs, charts and recent activity"   },
-  "/payments": { title: "Payments",  subtitle: "Browse and filter all transactions" },
+  "/": { title: "Analytics", subtitle: "KPIs, charts and recent activity" },
+  "/payments": { title: "Payments", subtitle: "Browse and filter all transactions" },
 };
 
 export function Topbar() {
   const { location } = useRouterState();
   const pathname = location.pathname;
 
-  const key = pathname === "/" ? "/" : "/" + pathname.split("/").filter(Boolean)[0];
+  const key = pathname === "/" ? "/" : `/${pathname.split("/").filter(Boolean)[0]}`;
   const config = ROUTE_CONFIG[key];
 
   if (!config) return null;

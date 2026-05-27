@@ -1,5 +1,5 @@
-import { BarChart3, CreditCard } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { BarChart3, CreditCard } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
 const NAV_ITEMS = [
@@ -19,10 +19,7 @@ export function Sidebar() {
 
       <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-1">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const isActive =
-            href === "/"
-              ? currentPath === "/"
-              : currentPath.startsWith(href);
+          const isActive = href === "/" ? currentPath === "/" : currentPath.startsWith(href);
 
           return (
             <Link

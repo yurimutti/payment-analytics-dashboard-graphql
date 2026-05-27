@@ -1,12 +1,8 @@
-import { useState } from "react";
 import { Search } from "lucide-react";
+import { useState } from "react";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
-import { PaymentRow } from "./payment-row";
-import { PaymentRowSkeleton } from "./payment-row.skeleton";
-import { Skeleton } from "@/shared/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
 import {
   Card,
   CardContent,
@@ -15,40 +11,32 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
 import { ErrorState } from "@/shared/ui/error-state";
 import { InlineWarning } from "@/shared/ui/inline-warning";
-import type { ChargeStatus } from "./payment-types";
+import { Input } from "@/shared/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { PAGE_SIZE, SEARCH_DEBOUNCE_MS } from "./constants";
+import { PaymentRow } from "./payment-row";
+import { PaymentRowSkeleton } from "./payment-row.skeleton";
+import type { ChargeStatus } from "./payment-types";
 import { usePaymentsQuery } from "./use-payments-query";
 
 const ALL_STATUSES: { value: ChargeStatus | "ALL"; label: string }[] = [
-  { value: "ALL",                label: "All statuses"   },
-  { value: "SUCCEEDED",         label: "Succeeded"       },
-  { value: "PENDING",           label: "Pending"         },
-  { value: "PENDING_PROCESSING",label: "Processing"      },
-  { value: "FAILED",            label: "Failed"          },
-  { value: "CANCELED",          label: "Canceled"        },
-  { value: "REFUNDED",          label: "Refunded"        },
-  { value: "PARTIALLY_REFUNDED",label: "Partial refund"  },
-  { value: "AUTHORIZED",        label: "Authorized"      },
-  { value: "EXPIRED",           label: "Expired"         },
-  { value: "PAID_OUT",          label: "Paid out"        },
+  { value: "ALL", label: "All statuses" },
+  { value: "SUCCEEDED", label: "Succeeded" },
+  { value: "PENDING", label: "Pending" },
+  { value: "PENDING_PROCESSING", label: "Processing" },
+  { value: "FAILED", label: "Failed" },
+  { value: "CANCELED", label: "Canceled" },
+  { value: "REFUNDED", label: "Refunded" },
+  { value: "PARTIALLY_REFUNDED", label: "Partial refund" },
+  { value: "AUTHORIZED", label: "Authorized" },
+  { value: "EXPIRED", label: "Expired" },
+  { value: "PAID_OUT", label: "Paid out" },
 ];
 
-function EmptyState({
-  hasFilters,
-  onClear,
-}: {
-  hasFilters: boolean;
-  onClear: () => void;
-}) {
+function EmptyState({ hasFilters, onClear }: { hasFilters: boolean; onClear: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 py-12">
       <Avatar className="h-10 w-10">
@@ -78,7 +66,14 @@ interface FilterBarProps {
   onClear: () => void;
 }
 
-function FilterBar({ search, status, hasFilters, onSearchChange, onStatusChange, onClear }: FilterBarProps) {
+function FilterBar({
+  search,
+  status,
+  hasFilters,
+  onSearchChange,
+  onStatusChange,
+  onClear,
+}: FilterBarProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <div className="relative">
@@ -105,12 +100,7 @@ function FilterBar({ search, status, hasFilters, onSearchChange, onStatusChange,
       </Select>
 
       {hasFilters && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 text-xs"
-          onClick={onClear}
-        >
+        <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={onClear}>
           Clear
         </Button>
       )}
@@ -121,25 +111,17 @@ function FilterBar({ search, status, hasFilters, onSearchChange, onStatusChange,
 export function PaymentsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ChargeStatus | "ALL">("ALL");
-  const [page, setPage]     = useState(1);
+  const [page, setPage] = useState(1);
 
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
 
-  const {
-    charges,
-    total,
-    loading,
-    error,
-    errorMessage,
-    refetch,
-    hasData,
-  } = usePaymentsQuery({
+  const { charges, total, loading, error, errorMessage, refetch, hasData } = usePaymentsQuery({
     search: debouncedSearch,
     status,
     size: PAGE_SIZE * page,
   });
 
-  const hasMore    = charges.length < total;
+  const hasMore = charges.length < total;
   const hasFilters = debouncedSearch !== "" || status !== "ALL";
 
   function handleSearchChange(value: string) {
@@ -171,7 +153,9 @@ export function PaymentsPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {Array.from({ length: PAGE_SIZE }).map((_, i) => <PaymentRowSkeleton key={i} />)}
+            {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+              <PaymentRowSkeleton key={i} />
+            ))}
           </CardContent>
         </Card>
       </div>
@@ -226,9 +210,7 @@ export function PaymentsPage() {
   return (
     <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
       {error && (
-        <InlineWarning>
-          Some payment data may be incomplete. Try refreshing the page.
-        </InlineWarning>
+        <InlineWarning>Some payment data may be incomplete. Try refreshing the page.</InlineWarning>
       )}
 
       <Card className="cursor-default">
@@ -251,7 +233,9 @@ export function PaymentsPage() {
 
         <CardContent className="space-y-3">
           <div className="space-y-3">
-            {charges.map((charge) => <PaymentRow key={charge.id} charge={charge} />)}
+            {charges.map((charge) => (
+              <PaymentRow key={charge.id} charge={charge} />
+            ))}
           </div>
         </CardContent>
 

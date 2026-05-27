@@ -1,28 +1,22 @@
-import { Eye, MoreHorizontal } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/card";
-import { Button, buttonVariants } from "@/shared/ui/button";
+import { Eye, MoreHorizontal } from "lucide-react";
+import { INITIALS_LENGTH, RECENT_TRANSACTIONS_SIZE } from "@/payments/constants";
+import { PaymentStatusBadge } from "@/payments/payment-status-badge";
+import { formatCurrency } from "@/shared/lib/currency";
+import { timeAgo } from "@/shared/lib/date";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
+import { Button, buttonVariants } from "@/shared/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
-import { Skeleton } from "@/shared/ui/skeleton";
 import { ErrorState } from "@/shared/ui/error-state";
-import { formatCurrency } from "@/shared/lib/currency";
-import { timeAgo } from "@/shared/lib/date";
-import { PaymentStatusBadge } from "@/payments/payment-status-badge";
-import { RECENT_TRANSACTIONS_SIZE, INITIALS_LENGTH } from "@/payments/constants";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { TransactionSkeleton } from "./transaction.skeleton";
-import { useRecentChargesQuery, type RecentCharge as Charge } from "./use-recent-charges-query";
+import { type RecentCharge as Charge, useRecentChargesQuery } from "./use-recent-charges-query";
 
 function getInitials(charge: Charge): string {
   const name = charge.customer?.name;
@@ -58,7 +52,9 @@ export function RecentTransactions() {
           <Skeleton className="h-8 w-20 rounded-md" />
         </CardHeader>
         <CardContent className="space-y-3">
-          {Array.from({ length: RECENT_TRANSACTIONS_SIZE }).map((_, i) => <TransactionSkeleton key={i} />)}
+          {Array.from({ length: RECENT_TRANSACTIONS_SIZE }).map((_, i) => (
+            <TransactionSkeleton key={i} />
+          ))}
         </CardContent>
       </Card>
     );
@@ -93,7 +89,7 @@ export function RecentTransactions() {
         </div>
         <Link
           to="/payments"
-          className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}
+          className={`${buttonVariants({ variant: "outline", size: "sm" })} cursor-pointer`}
         >
           <Eye className="h-4 w-4 mr-2" />
           View All
@@ -128,7 +124,9 @@ export function RecentTransactions() {
                     <p className="text-sm font-medium whitespace-nowrap">
                       {formatCurrency(charge.amount ?? 0, charge.currency)}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate max-w-16 sm:max-w-24">{timeAgo(charge.createdAt ?? 0)}</p>
+                    <p className="text-xs text-muted-foreground truncate max-w-16 sm:max-w-24">
+                      {timeAgo(charge.createdAt ?? 0)}
+                    </p>
                   </div>
 
                   <DropdownMenu>

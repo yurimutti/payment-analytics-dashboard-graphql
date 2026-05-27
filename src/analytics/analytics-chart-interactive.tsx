@@ -1,31 +1,19 @@
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { unixToISODate, formatChartDate } from "@/shared/lib/date";
-import { centsToPreciseFloat } from "@/shared/lib/currency";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/card";
+import { centsToPreciseFloat } from "@/shared/lib/currency";
+import { formatChartDate, unixToISODate } from "@/shared/lib/date";
+import { Button } from "@/shared/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import {
   type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/shared/ui/chart";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
-import { Button } from "@/shared/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
-import type { KPIDataPoint, DateRangeOption } from "./analytics-types";
+import type { DateRangeOption, KPIDataPoint } from "./analytics-types";
 
 const chartConfig = {
   amount: {
@@ -44,10 +32,10 @@ const chartConfig = {
 
 function toChartRows(data: KPIDataPoint[]) {
   return data.map((d) => ({
-    date:   unixToISODate(d.timestamp),
+    date: unixToISODate(d.timestamp),
     amount: centsToPreciseFloat(d.succeededAmount),
     failed: centsToPreciseFloat(d.failedAmount),
-    count:  d.succeededCount,
+    count: d.succeededCount,
   }));
 }
 
@@ -60,9 +48,9 @@ interface AnalyticsChartInteractiveProps {
 
 const RANGE_OPTIONS: { label: string; value: DateRangeOption }[] = [
   { label: "Last 12 months", value: 365 },
-  { label: "Last 90 days",   value: 90  },
-  { label: "Last 30 days",   value: 30  },
-  { label: "Last 7 days",    value: 7   },
+  { label: "Last 90 days", value: 90 },
+  { label: "Last 30 days", value: 30 },
+  { label: "Last 7 days", value: 7 },
 ];
 
 function ChartHeader({
@@ -141,8 +129,12 @@ export function AnalyticsChartInteractive({
         <CardContent className="p-0 pt-6">
           <div className="px-6 pb-6">
             <div className="flex h-65 sm:h-80 lg:h-87.5 w-full flex-col items-center justify-center text-center gap-2">
-              <p className="text-sm font-medium text-muted-foreground">No transactions in this period</p>
-              <p className="text-xs text-muted-foreground">Try a wider date range or check back after new charges arrive</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                No transactions in this period
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Try a wider date range or check back after new charges arrive
+              </p>
             </div>
           </div>
         </CardContent>
@@ -159,15 +151,15 @@ export function AnalyticsChartInteractive({
             <AreaChart data={rows} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="var(--color-amount)" stopOpacity={0.4} />
+                  <stop offset="5%" stopColor="var(--color-amount)" stopOpacity={0.4} />
                   <stop offset="95%" stopColor="var(--color-amount)" stopOpacity={0.05} />
                 </linearGradient>
                 <linearGradient id="colorFailed" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="var(--color-failed)" stopOpacity={0.3} />
+                  <stop offset="5%" stopColor="var(--color-failed)" stopOpacity={0.3} />
                   <stop offset="95%" stopColor="var(--color-failed)" stopOpacity={0.02} />
                 </linearGradient>
                 <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="var(--color-count)" stopOpacity={0.2} />
+                  <stop offset="5%" stopColor="var(--color-count)" stopOpacity={0.2} />
                   <stop offset="95%" stopColor="var(--color-count)" stopOpacity={0} />
                 </linearGradient>
               </defs>
@@ -188,16 +180,12 @@ export function AnalyticsChartInteractive({
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 12 }}
-                tickFormatter={(v: number) =>
-                  v >= 1000 ? `€${(v / 1000).toFixed(0)}k` : `€${v}`
-                }
+                tickFormatter={(v: number) => (v >= 1000 ? `€${(v / 1000).toFixed(0)}k` : `€${v}`)}
               />
 
               <ChartTooltip
                 content={
-                  <ChartTooltipContent
-                    labelFormatter={(value: string) => formatChartDate(value)}
-                  />
+                  <ChartTooltipContent labelFormatter={(value: string) => formatChartDate(value)} />
                 }
               />
 
