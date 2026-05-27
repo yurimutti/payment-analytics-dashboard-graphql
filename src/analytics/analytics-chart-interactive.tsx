@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/shared/ui/select";
 import { Button } from "@/shared/ui/button";
-import { Skeleton } from "boneyard-js/react";
+import { Skeleton } from "@/shared/ui/skeleton";
 import type { KPIDataPoint, DateRangeOption } from "./analytics-types";
 
 const chartConfig = {
@@ -74,7 +74,6 @@ export function AnalyticsChartInteractive({
   ];
 
   return (
-    <Skeleton name="analytics-chart" loading={isLoading} animate="pulse">
     <Card className="cursor-pointer">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div>
@@ -105,6 +104,9 @@ export function AnalyticsChartInteractive({
 
       <CardContent className="p-0 pt-6">
         <div className="px-6 pb-6">
+          {isLoading ? (
+            <Skeleton className="h-[350px] w-full rounded-lg" />
+          ) : (
           <ChartContainer config={chartConfig} className="h-[350px] w-full">
             <AreaChart data={rows} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
               <defs>
@@ -167,9 +169,9 @@ export function AnalyticsChartInteractive({
               />
             </AreaChart>
           </ChartContainer>
+          )}
         </div>
       </CardContent>
     </Card>
-    </Skeleton>
   );
 }

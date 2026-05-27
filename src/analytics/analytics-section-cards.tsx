@@ -1,5 +1,4 @@
 import { TrendingDown, TrendingUp } from "lucide-react";
-import { Skeleton } from "boneyard-js/react";
 import {
   Card,
   CardAction,
@@ -9,8 +8,29 @@ import {
   CardTitle,
 } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { formatCurrency } from "@/shared/lib/currency";
 import type { AnalyticsData } from "./analytics-types";
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+function CardSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="mt-1 h-8 w-36" />
+        <CardAction>
+          <Skeleton className="h-6 w-16 rounded-full" />
+        </CardAction>
+      </CardHeader>
+      <CardFooter className="flex-col items-start gap-1.5 text-sm">
+        <Skeleton className="h-4 w-40" />
+        <Skeleton className="h-3 w-32" />
+      </CardFooter>
+    </Card>
+  );
+}
 
 // ─── Derived metrics ──────────────────────────────────────────────────────────
 
@@ -22,15 +42,6 @@ interface Metric {
   footer: string;
   subfooter: string;
 }
-
-const FALLBACK_METRICS: Metric[] = Array.from({ length: 4 }, (_, i) => ({
-  title: ["Total Volume", "Success Rate", "Failed", "Avg Transaction"][i],
-  value: "—",
-  change: "—",
-  trend: "up" as const,
-  footer: "—",
-  subfooter: "—",
-}));
 
 function deriveMetrics(data: AnalyticsData): Metric[] {
   const { total } = data;
@@ -85,37 +96,43 @@ interface AnalyticsSectionCardsProps {
 }
 
 export function AnalyticsSectionCards({ data, isLoading }: AnalyticsSectionCardsProps) {
-  const metrics = data ? deriveMetrics(data) : FALLBACK_METRICS;
+  if (isLoading || !data) {
+    return (
+      <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)}
+      </div>
+    );
+  }
+
+  const metrics = deriveMetrics(data);
 
   return (
-    <Skeleton name="kpi-cards" loading={isLoading || !data} animate="pulse">
-      <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map((metric) => {
-          const TrendIcon = metric.trend === "up" ? TrendingUp : TrendingDown;
-          return (
-            <Card key={metric.title} className="@container/card cursor-pointer">
-              <CardHeader>
-                <CardDescription>{metric.title}</CardDescription>
-                <CardTitle className="min-w-0 truncate text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                  {metric.value}
-                </CardTitle>
-                <CardAction>
-                  <Badge variant="outline" className="gap-1.5 whitespace-nowrap">
-                    <TrendIcon className="h-4 w-4 shrink-0" />
-                    {metric.change}
-                  </Badge>
-                </CardAction>
-              </CardHeader>
-              <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                <div className="line-clamp-1 flex gap-2 font-medium">
-                  {metric.footer} <TrendIcon className="size-4" />
-                </div>
-                <div className="text-muted-foreground">{metric.subfooter}</div>
-              </CardFooter>
-            </Card>
-          );
-        })}
-      </div>
-    </Skeleton>
+    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {metrics.map((metric) => {
+        const TrendIcon = metric.trend === "up" ? TrendingUp : TrendingDown;
+        return (
+          <Card key={metric.title} className="@container/card cursor-pointer">
+            <CardHeader>
+              <CardDescription>{metric.title}</CardDescription>
+              <CardTitle className="min-w-0 truncate text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {metric.value}
+              </CardTitle>
+              <CardAction>
+                <Badge variant="outline" className="gap-1.5 whitespace-nowrap">
+                  <TrendIcon className="h-4 w-4 shrink-0" />
+                  {metric.change}
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="flex-col items-start gap-1.5 text-sm">
+              <div className="line-clamp-1 flex gap-2 font-medium">
+                {metric.footer} <TrendIcon className="size-4" />
+              </div>
+              <div className="text-muted-foreground">{metric.subfooter}</div>
+            </CardFooter>
+          </Card>
+        );
+      })}
+    </div>
   );
 }

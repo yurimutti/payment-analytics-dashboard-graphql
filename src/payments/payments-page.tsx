@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Search } from "lucide-react";
 import { MOCK_CHARGES } from "./payments-mock";
 import { PaymentRow } from "./payment-row";
-import { Skeleton } from "boneyard-js/react";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -49,6 +49,27 @@ function applyFilters(charges: Charge[], search: string, status: ChargeStatus | 
     }
     return true;
   });
+}
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+function PaymentRowSkeleton() {
+  return (
+    <div className="flex items-center justify-between rounded-lg border p-4 gap-4">
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-9 w-9 rounded-full shrink-0" />
+        <div className="space-y-1.5">
+          <Skeleton className="h-3.5 w-32" />
+          <Skeleton className="h-3 w-24" />
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-5 w-20 rounded-md" />
+        <Skeleton className="h-3.5 w-16" />
+        <Skeleton className="h-3.5 w-20" />
+      </div>
+    </div>
+  );
 }
 
 // ─── Empty / error states ─────────────────────────────────────────────────────
@@ -148,14 +169,14 @@ export function PaymentsPage() {
 
         {/* Rows */}
         <CardContent className="space-y-3">
-          {filtered.length === 0 && !isLoading ? (
+          {isLoading ? (
+            Array.from({ length: PAGE_SIZE }).map((_, i) => <PaymentRowSkeleton key={i} />)
+          ) : filtered.length === 0 ? (
             <EmptyState hasFilters={hasFilters} />
           ) : (
-            <Skeleton name="payments-list" loading={isLoading} animate="pulse">
-              <div className="space-y-3">
-                {visible.map((charge) => <PaymentRow key={charge.id} charge={charge} />)}
-              </div>
-            </Skeleton>
+            <div className="space-y-3">
+              {visible.map((charge) => <PaymentRow key={charge.id} charge={charge} />)}
+            </div>
           )}
         </CardContent>
 

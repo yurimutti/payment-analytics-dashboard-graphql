@@ -15,12 +15,36 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
-import { Skeleton } from "boneyard-js/react";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { formatCurrency } from "@/shared/lib/currency";
 import { timeAgo } from "@/shared/lib/date";
 import type { Charge } from "@/payments/payment-types";
 import { MOCK_CHARGES } from "@/payments/payments-mock";
 import { PaymentStatusBadge } from "@/payments/payment-status-badge";
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+function TransactionSkeleton() {
+  return (
+    <div className="flex items-center p-3 rounded-lg border gap-2">
+      <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+      <div className="flex flex-1 items-center justify-between gap-2">
+        <div className="space-y-1.5">
+          <Skeleton className="h-3.5 w-28" />
+          <Skeleton className="h-3 w-36" />
+        </div>
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-5 w-20 rounded-md" />
+          <div className="space-y-1.5 text-right">
+            <Skeleton className="h-3.5 w-16" />
+            <Skeleton className="h-3 w-12" />
+          </div>
+          <Skeleton className="h-8 w-8 rounded-md" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -70,7 +94,9 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
       </CardHeader>
 
       <CardContent className="space-y-3">
-        <Skeleton name="recent-transactions" loading={isLoading} animate="pulse">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, i) => <TransactionSkeleton key={i} />)
+        ) : (
           <div className="space-y-3">
           {recent.map((charge) => (
             <div key={charge.id} className="flex p-3 rounded-lg border gap-2">
@@ -117,7 +143,7 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
             </div>
           ))}
           </div>
-        </Skeleton>
+        )}
       </CardContent>
     </Card>
   );

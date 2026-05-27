@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
-import { Skeleton } from "boneyard-js/react";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { PaymentStatusBadge } from "./payment-status-badge";
 import {
   Card,
@@ -63,6 +63,33 @@ function Row({
   );
 }
 
+// ─── Skeleton ────────────────────────────────────────────────────────────────
+
+function DetailSkeleton() {
+  return (
+    <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
+      <Skeleton className="h-4 w-20" />
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-5 w-5 rounded-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+      </div>
+      <Skeleton className="h-px w-full" />
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-4">
+          <Skeleton className="h-36 rounded-lg" />
+          <Skeleton className="h-36 rounded-lg" />
+        </div>
+        <div className="space-y-4">
+          <Skeleton className="h-52 rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Not found ────────────────────────────────────────────────────────────────
 
 function NotFound({ id }: { id: string }) {
@@ -102,14 +129,15 @@ export function PaymentDetailPage() {
     return () => clearTimeout(timer);
   }, [id]);
 
-  if (notFound) return <NotFound id={id} />;
+  if (isLoading) return <DetailSkeleton />;
+  if (notFound)  return <NotFound id={id} />;
 
-  const customerInitials = charge?.customer?.name
-    ? charge.customer.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
+  const c = charge!;
+  const customerInitials = c.customer?.name
+    ? c.customer.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
     : "?";
 
   return (
-    <Skeleton name="payment-detail" loading={isLoading} animate="pulse">
     <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
 
       {/* Back */}
@@ -122,41 +150,39 @@ export function PaymentDetailPage() {
       </Link>
 
       {/* Hero — amount + status */}
-      {charge && (
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <StatusIcon status={charge.status} />
+          <StatusIcon status={c.status} />
           <div>
             <p className="text-3xl font-bold tabular-nums">
-              {formatCurrency(charge.amount, charge.currency)}
+              {formatCurrency(c.amount, c.currency)}
             </p>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {formatUnixDate(charge.createdAt, "MMM d, yyyy · HH:mm")}
+              {formatUnixDate(c.createdAt, "MMM d, yyyy · HH:mm")}
               {" · "}
-              {timeAgo(charge.createdAt)}
+              {timeAgo(c.createdAt)}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <PaymentStatusBadge status={charge.status} className="text-sm px-3 py-1" />
+          <PaymentStatusBadge status={c.status} className="text-sm px-3 py-1" />
           <Badge variant="outline" className="text-xs">
-            {charge.livemode ? "Live" : "Test"}
+            {c.livemode ? "Live" : "Test"}
           </Badge>
         </div>
       </div>
-      )}
 
-      {charge && <Separator />}
+      <Separator />
 
       {/* Two-column grid */}
-      {charge && <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
 
         {/* ── Left column ────────────────────────────────────── */}
         <div className="space-y-4">
 
           {/* Payment method */}
-          {charge.paymentMethod && (
+          {c.paymentMethod && (
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
@@ -164,29 +190,29 @@ export function PaymentDetailPage() {
                   <CardTitle className="text-sm font-semibold">Payment Method</CardTitle>
                 </div>
                 <CardDescription className="capitalize">
-                  {charge.paymentMethod.method}
+                  {c.paymentMethod.method}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Separator className="mb-3" />
-                {charge.paymentMethod.card ? (
+                {c.paymentMethod.card ? (
                   <>
-                    <Row label="Brand"   value={charge.paymentMethod.card.brand.toUpperCase()} />
-                    <Row label="Number"  value={`•••• •••• •••• ${charge.paymentMethod.card.last4}`} mono />
+                    <Row label="Brand"   value={c.paymentMethod.card.brand.toUpperCase()} />
+                    <Row label="Number"  value={`•••• •••• •••• ${c.paymentMethod.card.last4}`} mono />
                     <Row
                       label="Expires"
-                      value={`${String(charge.paymentMethod.card.expMonth).padStart(2, "0")} / ${charge.paymentMethod.card.expYear}`}
+                      value={`${String(c.paymentMethod.card.expMonth).padStart(2, "0")} / ${c.paymentMethod.card.expYear}`}
                     />
                   </>
                 ) : (
-                  <Row label="Method" value={charge.paymentMethod.method} />
+                  <Row label="Method" value={c.paymentMethod.method} />
                 )}
               </CardContent>
             </Card>
           )}
 
           {/* Customer */}
-          {charge.customer && (
+          {c.customer && (
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
@@ -202,22 +228,22 @@ export function PaymentDetailPage() {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium">{charge.customer.name}</p>
-                    {charge.customer.email && (
-                      <p className="text-xs text-muted-foreground">{charge.customer.email}</p>
+                    <p className="text-sm font-medium">{c.customer.name}</p>
+                    {c.customer.email && (
+                      <p className="text-xs text-muted-foreground">{c.customer.email}</p>
                     )}
                   </div>
                 </div>
                 <Separator className="mb-3" />
-                {charge.customer.name  && <Row label="Name"  value={charge.customer.name} />}
-                {charge.customer.email && <Row label="Email" value={charge.customer.email} />}
-                {charge.customer.phone && <Row label="Phone" value={charge.customer.phone} />}
+                {c.customer.name  && <Row label="Name"  value={c.customer.name} />}
+                {c.customer.email && <Row label="Email" value={c.customer.email} />}
+                {c.customer.phone && <Row label="Phone" value={c.customer.phone} />}
               </CardContent>
             </Card>
           )}
 
           {/* Status detail */}
-          {(charge.statusMessage || charge.description || charge.descriptor) && (
+          {(c.statusMessage || c.description || c.descriptor) && (
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
@@ -227,11 +253,9 @@ export function PaymentDetailPage() {
               </CardHeader>
               <CardContent>
                 <Separator className="mb-3" />
-                {charge.description  && <Row label="Description"  value={charge.description} />}
-                {charge.descriptor   && <Row label="Descriptor"   value={charge.descriptor} />}
-                {charge.statusMessage && (
-                  <Row label="Status message" value={charge.statusMessage} />
-                )}
+                {c.description   && <Row label="Description"    value={c.description} />}
+                {c.descriptor    && <Row label="Descriptor"     value={c.descriptor} />}
+                {c.statusMessage && <Row label="Status message" value={c.statusMessage} />}
               </CardContent>
             </Card>
           )}
@@ -251,34 +275,34 @@ export function PaymentDetailPage() {
             </CardHeader>
             <CardContent>
               <Separator className="mb-3" />
-              <Row label="Payment ID"   value={charge.id}          mono copyable />
-              {charge.orderId    && <Row label="Order ID"    value={charge.orderId}    mono copyable />}
-              {charge.sequenceId && <Row label="Sequence ID" value={charge.sequenceId} mono copyable />}
-              {charge.statusCode && <Row label="Status code" value={charge.statusCode} mono />}
+              <Row label="Payment ID"   value={c.id}          mono copyable />
+              {c.orderId    && <Row label="Order ID"    value={c.orderId}    mono copyable />}
+              {c.sequenceId && <Row label="Sequence ID" value={c.sequenceId} mono copyable />}
+              {c.statusCode && <Row label="Status code" value={c.statusCode} mono />}
               <Row
                 label="Created"
-                value={formatUnixDate(charge.createdAt, "MMM d, yyyy HH:mm:ss")}
+                value={formatUnixDate(c.createdAt, "MMM d, yyyy HH:mm:ss")}
               />
               <Row
                 label="Updated"
-                value={formatUnixDate(charge.updatedAt, "MMM d, yyyy HH:mm:ss")}
+                value={formatUnixDate(c.updatedAt, "MMM d, yyyy HH:mm:ss")}
               />
             </CardContent>
           </Card>
 
           {/* Metadata */}
-          {charge.metadata && charge.metadata.length > 0 && (
+          {c.metadata && c.metadata.length > 0 && (
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <Tag size={15} className="text-muted-foreground" />
                   <CardTitle className="text-sm font-semibold">Metadata</CardTitle>
                 </div>
-                <CardDescription>{charge.metadata.length} key{charge.metadata.length !== 1 ? "s" : ""}</CardDescription>
+                <CardDescription>{c.metadata.length} key{c.metadata.length !== 1 ? "s" : ""}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Separator className="mb-3" />
-                {charge.metadata.map(({ key, value }) => (
+                {c.metadata.map(({ key, value }) => (
                   <Row key={key} label={key} value={value} mono />
                 ))}
               </CardContent>
@@ -286,8 +310,7 @@ export function PaymentDetailPage() {
           )}
 
         </div>
-      </div>}
+      </div>
     </div>
-    </Skeleton>
   );
 }
