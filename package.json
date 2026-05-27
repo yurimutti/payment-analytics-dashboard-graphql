@@ -17,7 +17,10 @@
     "check:fix-unsafe": "biome check --write --unsafe src",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@apollo/client": "^3.13.4",
@@ -56,6 +59,7 @@
     "@graphql-codegen/near-operation-file-preset": "^5.2.1",
     "@graphql-codegen/schema-ast": "^6.0.1",
     "@graphql-codegen/typescript-operations": "^6.0.3",
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/vite": "^4.1.8",
     "@tanstack/router-vite-plugin": "^1.120.0",
     "@testing-library/jest-dom": "^6.9.1",

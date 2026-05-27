@@ -30,3 +30,8 @@ src/routeTree.gen.ts
 # Misc
 .tanstack/
 .turbo/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
