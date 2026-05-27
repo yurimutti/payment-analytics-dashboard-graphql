@@ -85,25 +85,46 @@ export function PaymentDetailPage() {
 
   if (error && !payment) {
     return (
-      <ErrorState
-        title="Could not load payment details"
-        description={errorMessage}
-        onRetry={() => refetch()}
-      />
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6">
+        <ErrorState
+          title="Could not load payment details"
+          description={errorMessage}
+          onRetry={() => refetch()}
+        />
+        <Link to="/payments" className="text-sm text-muted-foreground hover:text-foreground">
+          ← Back to payments
+        </Link>
+      </div>
     );
   }
 
   if (notFound || !payment) return <NotFound id={id} />;
 
-  const c = payment;
-  const customerInitials = c.customer?.name
-    ? c.customer.name.split(" ").map((w) => w[0]).join("").slice(0, INITIALS_LENGTH).toUpperCase()
+  const {
+    id: paymentId,
+    status,
+    amount,
+    currency,
+    createdAt,
+    updatedAt,
+    livemode,
+    statusCode,
+    statusMessage,
+    descriptor,
+    description,
+    orderId,
+    sequenceId,
+    customer,
+    paymentMethod,
+    metadata,
+  } = payment;
+
+  const customerInitials = customer?.name
+    ? customer.name.split(" ").map((w) => w[0]).join("").slice(0, INITIALS_LENGTH).toUpperCase()
     : "?";
 
   return (
     <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
-
-      {/* Back */}
       <Link
         to="/payments"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -112,40 +133,35 @@ export function PaymentDetailPage() {
         Payments
       </Link>
 
-      {/* Hero — amount + status */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <StatusIcon status={c.status} />
+          <StatusIcon status={status} />
           <div>
             <p className="text-3xl font-bold tabular-nums">
-              {formatCurrency(c.amount ?? 0, c.currency)}
+              {formatCurrency(amount ?? 0, currency)}
             </p>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {formatUnixDate(c.createdAt ?? 0, "MMM d, yyyy · HH:mm")}
+              {formatUnixDate(createdAt ?? 0, "MMM d, yyyy · HH:mm")}
               {" · "}
-              {timeAgo(c.createdAt ?? 0)}
+              {timeAgo(createdAt ?? 0)}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <PaymentStatusBadge status={c.status} className="text-sm px-3 py-1" />
+          <PaymentStatusBadge status={status} className="text-sm px-3 py-1" />
           <Badge variant="outline" className="text-xs">
-            {c.livemode ? "Live" : "Test"}
+            {livemode ? "Live" : "Test"}
           </Badge>
         </div>
       </div>
 
       <Separator />
 
-      {/* Two-column grid */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-
-        {/* ── Left column ────────────────────────────────────── */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(280px,360px)]">
         <div className="space-y-4">
 
-          {/* Payment method */}
-          {c.paymentMethod && (
+          {paymentMethod && (
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
@@ -153,35 +169,34 @@ export function PaymentDetailPage() {
                   <CardTitle className="text-sm font-semibold">Payment Method</CardTitle>
                 </div>
                 <CardDescription className="capitalize">
-                  {c.paymentMethod.method}
+                  {paymentMethod.method}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Separator className="mb-3" />
-                {c.paymentMethod.card ? (
+                {paymentMethod.card ? (
                   <>
-                    {c.paymentMethod.card.brand && (
-                      <Row label="Brand"  value={c.paymentMethod.card.brand.toUpperCase()} />
+                    {paymentMethod.card.brand && (
+                      <Row label="Brand"  value={paymentMethod.card.brand.toUpperCase()} />
                     )}
-                    {c.paymentMethod.card.last4 && (
-                      <Row label="Number" value={`•••• •••• •••• ${c.paymentMethod.card.last4}`} mono />
+                    {paymentMethod.card.last4 && (
+                      <Row label="Number" value={`•••• •••• •••• ${paymentMethod.card.last4}`} mono />
                     )}
-                    {c.paymentMethod.card.expiration && (
+                    {paymentMethod.card.expiration && (
                       <Row
                         label="Expires"
-                        value={formatUnixDate(c.paymentMethod.card.expiration, "MM / yyyy")}
+                        value={formatUnixDate(paymentMethod.card.expiration, "MM / yyyy")}
                       />
                     )}
                   </>
                 ) : (
-                  <Row label="Method" value={c.paymentMethod.method ?? "—"} />
+                  <Row label="Method" value={paymentMethod.method ?? "—"} />
                 )}
               </CardContent>
             </Card>
           )}
 
-          {/* Customer */}
-          {c.customer && (
+          {customer && (
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
@@ -197,22 +212,21 @@ export function PaymentDetailPage() {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium">{c.customer.name}</p>
-                    {c.customer.email && (
-                      <p className="text-xs text-muted-foreground">{c.customer.email}</p>
+                    <p className="text-sm font-medium">{customer.name}</p>
+                    {customer.email && (
+                      <p className="text-xs text-muted-foreground">{customer.email}</p>
                     )}
                   </div>
                 </div>
                 <Separator className="mb-3" />
-                {c.customer.name  && <Row label="Name"  value={c.customer.name} />}
-                {c.customer.email && <Row label="Email" value={c.customer.email} />}
-                {c.customer.phone && <Row label="Phone" value={c.customer.phone} />}
+                {customer.name  && <Row label="Name"  value={customer.name} />}
+                {customer.email && <Row label="Email" value={customer.email} />}
+                {customer.phone && <Row label="Phone" value={customer.phone} />}
               </CardContent>
             </Card>
           )}
 
-          {/* Status detail */}
-          {(c.statusMessage || c.description || c.descriptor) && (
+          {(statusMessage || description || descriptor) && (
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
@@ -222,19 +236,16 @@ export function PaymentDetailPage() {
               </CardHeader>
               <CardContent>
                 <Separator className="mb-3" />
-                {c.description   && <Row label="Description"    value={c.description} />}
-                {c.descriptor    && <Row label="Descriptor"     value={c.descriptor} />}
-                {c.statusMessage && <Row label="Status message" value={c.statusMessage} />}
+                {description   && <Row label="Description"    value={description} />}
+                {descriptor    && <Row label="Descriptor"     value={descriptor} />}
+                {statusMessage && <Row label="Status message" value={statusMessage} />}
               </CardContent>
             </Card>
           )}
 
         </div>
 
-        {/* ── Right column ───────────────────────────────────── */}
         <div className="space-y-4">
-
-          {/* Reference IDs */}
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
@@ -244,34 +255,34 @@ export function PaymentDetailPage() {
             </CardHeader>
             <CardContent>
               <Separator className="mb-3" />
-              <Row label="Payment ID"   value={c.id}          mono copyable />
-              {c.orderId    && <Row label="Order ID"    value={c.orderId}    mono copyable />}
-              {c.sequenceId && <Row label="Sequence ID" value={c.sequenceId} mono copyable />}
-              {c.statusCode && <Row label="Status code" value={c.statusCode} mono />}
+              <Row label="Payment ID"   value={paymentId}     mono copyable />
+              {orderId    && <Row label="Order ID"    value={orderId}    mono copyable />}
+              {sequenceId && <Row label="Sequence ID" value={sequenceId} mono copyable />}
+              {statusCode && <Row label="Status code" value={statusCode} mono />}
               <Row
                 label="Created"
-                value={formatUnixDate(c.createdAt ?? 0, "MMM d, yyyy HH:mm:ss")}
+                value={formatUnixDate(createdAt ?? 0, "MMM d, yyyy HH:mm:ss")}
               />
               <Row
                 label="Updated"
-                value={formatUnixDate(c.updatedAt ?? 0, "MMM d, yyyy HH:mm:ss")}
+                value={formatUnixDate(updatedAt ?? 0, "MMM d, yyyy HH:mm:ss")}
               />
             </CardContent>
           </Card>
 
           {/* Metadata */}
-          {c.metadata && c.metadata.length > 0 && (
+          {metadata && metadata.length > 0 && (
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <Tag size={15} className="text-muted-foreground" />
                   <CardTitle className="text-sm font-semibold">Metadata</CardTitle>
                 </div>
-                <CardDescription>{c.metadata.length} key{c.metadata.length !== 1 ? "s" : ""}</CardDescription>
+                <CardDescription>{metadata.length} key{metadata.length !== 1 ? "s" : ""}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Separator className="mb-3" />
-                {c.metadata.map(({ key, value }) => (
+                {metadata.map(({ key, value }) => (
                   <Row key={key} label={key} value={value ?? ""} mono />
                 ))}
               </CardContent>

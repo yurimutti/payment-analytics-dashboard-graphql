@@ -38,13 +38,14 @@ export function usePaymentDetailQuery(id: string) {
   });
 
   const payment = query.data?.charge ?? null;
-  const notFound = !query.loading && !query.error && payment === null;
+  const hasNetworkError = Boolean(query.error?.networkError);
+  const notFound = !query.loading && payment === null && !hasNetworkError;
 
   return {
     payment,
     loading: query.loading,
-    error: query.error,
-    errorMessage: query.error ? getApolloErrorMessage(query.error) : null,
+    error: hasNetworkError ? query.error : null,
+    errorMessage: hasNetworkError && query.error ? getApolloErrorMessage(query.error) : null,
     refetch: query.refetch,
     notFound,
   };

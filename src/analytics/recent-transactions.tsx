@@ -50,7 +50,7 @@ export function RecentTransactions() {
   if (loading && !hasData) {
     return (
       <Card className="cursor-pointer">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2 space-y-0 pb-4">
           <div>
             <CardTitle>Recent Transactions</CardTitle>
             <CardDescription>Latest customer transactions</CardDescription>
@@ -67,7 +67,7 @@ export function RecentTransactions() {
   if (error && !hasData) {
     return (
       <Card className="cursor-pointer">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2 space-y-0 pb-4">
           <div>
             <CardTitle>Recent Transactions</CardTitle>
             <CardDescription>Latest customer transactions</CardDescription>
@@ -86,7 +86,7 @@ export function RecentTransactions() {
 
   return (
     <Card className="cursor-pointer">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2 space-y-0 pb-4">
         <div>
           <CardTitle>Recent Transactions</CardTitle>
           <CardDescription>Latest customer transactions</CardDescription>
@@ -115,20 +115,20 @@ export function RecentTransactions() {
                 </AvatarFallback>
               </Avatar>
 
-              <div className="flex flex-1 items-center flex-wrap justify-between gap-2">
-                <div className="min-w-0">
+              <div className="flex flex-1 items-center gap-x-3 gap-y-2 min-w-0 flex-wrap">
+                <div className="min-w-32 flex-1">
                   <p className="text-sm font-medium truncate">{getDisplayName(charge)}</p>
                   <p className="text-xs text-muted-foreground truncate">{getEmail(charge)}</p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 shrink-0 ml-auto">
                   <PaymentStatusBadge status={charge.status} />
 
                   <div className="text-right">
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium whitespace-nowrap">
                       {formatCurrency(charge.amount ?? 0, charge.currency)}
                     </p>
-                    <p className="text-xs text-muted-foreground">{timeAgo(charge.createdAt ?? 0)}</p>
+                    <p className="text-xs text-muted-foreground truncate max-w-16 sm:max-w-24">{timeAgo(charge.createdAt ?? 0)}</p>
                   </div>
 
                   <DropdownMenu>

@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Search } from "lucide-react";
+import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 import { PaymentRow } from "./payment-row";
 import { PaymentRowSkeleton } from "./payment-row.skeleton";
 import { Skeleton } from "@/shared/ui/skeleton";
@@ -122,13 +123,7 @@ export function PaymentsPage() {
   const [status, setStatus] = useState<ChargeStatus | "ALL">("ALL");
   const [page, setPage]     = useState(1);
 
-  const [debouncedSearch, setDebouncedSearch] = useState(search);
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search), SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(t);
-  }, [search]);
-
-  useEffect(() => { setPage(1); }, [debouncedSearch, status]);
+  const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
 
   const {
     charges,
@@ -147,16 +142,27 @@ export function PaymentsPage() {
   const hasMore    = charges.length < total;
   const hasFilters = debouncedSearch !== "" || status !== "ALL";
 
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(1);
+  }
+
+  function handleStatusChange(value: ChargeStatus | "ALL") {
+    setStatus(value);
+    setPage(1);
+  }
+
   function clearFilters() {
     setSearch("");
     setStatus("ALL");
+    setPage(1);
   }
 
   if (loading && !hasData) {
     return (
       <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
         <Card className="cursor-default">
-          <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-4">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 space-y-0 pb-4">
             <div>
               <CardTitle>All Transactions</CardTitle>
               <CardDescription>
@@ -195,7 +201,7 @@ export function PaymentsPage() {
     return (
       <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
         <Card className="cursor-default">
-          <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-4">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 space-y-0 pb-4">
             <div>
               <CardTitle>All Transactions</CardTitle>
               <CardDescription>0 payments</CardDescription>
@@ -204,8 +210,8 @@ export function PaymentsPage() {
               search={search}
               status={status}
               hasFilters={hasFilters}
-              onSearchChange={setSearch}
-              onStatusChange={setStatus}
+              onSearchChange={handleSearchChange}
+              onStatusChange={handleStatusChange}
               onClear={clearFilters}
             />
           </CardHeader>
@@ -226,7 +232,7 @@ export function PaymentsPage() {
       )}
 
       <Card className="cursor-default">
-        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-4">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 space-y-0 pb-4">
           <div>
             <CardTitle>All Transactions</CardTitle>
             <CardDescription>
@@ -237,8 +243,8 @@ export function PaymentsPage() {
             search={search}
             status={status}
             hasFilters={hasFilters}
-            onSearchChange={setSearch}
-            onStatusChange={setStatus}
+            onSearchChange={handleSearchChange}
+            onStatusChange={handleStatusChange}
             onClear={clearFilters}
           />
         </CardHeader>

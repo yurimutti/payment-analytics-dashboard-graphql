@@ -12,7 +12,7 @@ export function PaymentDetailSkeleton() {
         </div>
       </div>
       <Skeleton className="h-px w-full" />
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(280px,360px)]">
         <div className="space-y-4">
           <Skeleton className="h-36 rounded-lg" />
           <Skeleton className="h-36 rounded-lg" />

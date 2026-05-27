@@ -73,7 +73,7 @@ function ChartHeader({
   onRangeChange: (v: DateRangeOption) => void;
 }) {
   return (
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2 space-y-0 pb-2">
       <div>
         <CardTitle>Payment Volume</CardTitle>
         <CardDescription>Daily transaction volume for the selected period</CardDescription>
@@ -127,7 +127,7 @@ export function AnalyticsChartInteractive({
         <ChartHeader range={range} onRangeChange={onRangeChange} />
         <CardContent className="p-0 pt-6">
           <div className="px-6 pb-6">
-            <Skeleton className="h-[350px] w-full rounded-lg" />
+            <Skeleton className="h-65 sm:h-80 lg:h-87.5 w-full rounded-lg" />
           </div>
         </CardContent>
       </Card>
@@ -140,7 +140,7 @@ export function AnalyticsChartInteractive({
         <ChartHeader range={range} onRangeChange={onRangeChange} />
         <CardContent className="p-0 pt-6">
           <div className="px-6 pb-6">
-            <div className="flex h-[350px] w-full flex-col items-center justify-center text-center gap-2">
+            <div className="flex h-65 sm:h-80 lg:h-87.5 w-full flex-col items-center justify-center text-center gap-2">
               <p className="text-sm font-medium text-muted-foreground">No transactions in this period</p>
               <p className="text-xs text-muted-foreground">Try a wider date range or check back after new charges arrive</p>
             </div>
@@ -155,7 +155,7 @@ export function AnalyticsChartInteractive({
       <ChartHeader range={range} onRangeChange={onRangeChange} />
       <CardContent className="p-0 pt-6">
         <div className="px-6 pb-6">
-          <ChartContainer config={chartConfig} className="h-[350px] w-full">
+          <ChartContainer config={chartConfig} className="h-65 sm:h-80 lg:h-87.5 w-full">
             <AreaChart data={rows} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
