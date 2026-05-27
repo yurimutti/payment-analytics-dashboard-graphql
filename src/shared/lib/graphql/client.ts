@@ -2,16 +2,17 @@ import { ApolloClient, HttpLink, InMemoryCache, from } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 
 // ─── HTTP transport ───────────────────────────────────────────────────────────
-// Points to the Vite dev-server proxy (/api/graphql).
-// The proxy injects the Authorization header server-side — the API key never
-// reaches the browser bundle.
+// Dev:  calls /api/graphql (Vite proxy) → proxy injects Authorization server-side
+// Prod: calls VITE_GRAPHQL_ENDPOINT directly → needs a real server-side proxy
+//       (Vercel rewrite, Cloudflare Worker, etc.) that injects the API key.
 
 const httpLink = new HttpLink({
-  uri: import.meta.env.VITE_GRAPHQL_ENDPOINT,
+  uri: import.meta.env.DEV
+    ? "/api/graphql"
+    : import.meta.env.VITE_GRAPHQL_ENDPOINT,
 });
 
 // ─── Global error handler ──────────────────────────────────────────────────────
-// Logs in development. Extend to report to Sentry / another service.
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (import.meta.env.DEV) {

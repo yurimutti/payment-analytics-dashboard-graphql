@@ -6,7 +6,6 @@ import path from "path";
 
 export default defineConfig(({ mode }) => {
   // Load ALL env vars — including non-VITE_ ones (server-side secrets).
-  // Passing "" as the prefix means nothing is filtered out.
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
@@ -24,13 +23,12 @@ export default defineConfig(({ mode }) => {
 
     server: {
       proxy: {
-        // All requests to /api/graphql are forwarded to the real GraphQL endpoint.
-        // The Authorization header is injected here, in Node.js — it never reaches
-        // the browser bundle.
+        // In dev the client calls /api/graphql (relative → goes through this proxy).
+        // The proxy forwards to the real endpoint and injects the API key server-side.
+        // The key never reaches the browser bundle.
         "/api/graphql": {
-          target: env.GRAPHQL_ENDPOINT,
+          target: env.VITE_GRAPHQL_ENDPOINT,
           changeOrigin: true,
-          // Strip the /api/graphql prefix — the real server lives at its root.
           rewrite: (p) => p.replace(/^\/api\/graphql/, ""),
           headers: {
             authorization: env.API_KEY,

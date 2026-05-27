@@ -2,8 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_GRAPHQL_ENDPOINT: string;
-  // API_KEY is intentionally absent — it is server-side only (no VITE_ prefix)
-  // and is never bundled. It lives in vite.config.ts proxy config only.
+  // API_KEY has no VITE_ prefix — it is server-side only and never bundled.
 }
 
 interface ImportMeta {
