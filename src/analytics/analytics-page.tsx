@@ -10,7 +10,7 @@ import type { DateRangeOption } from "./analytics-types";
 export function AnalyticsPage() {
   const [range, setRange] = useState<DateRangeOption>(30);
 
-  const { data, loading } = useQuery<AnalyticsKpiResponse>(ANALYTICS_KPI_QUERY, {
+  const { data, loading, error } = useQuery<AnalyticsKpiResponse>(ANALYTICS_KPI_QUERY, {
     variables: { days: range, currency: "EUR" },
     fetchPolicy: "cache-and-network",
   });
@@ -20,10 +20,8 @@ export function AnalyticsPage() {
   return (
     <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
       <div className="@container/main space-y-6">
-        {/* KPI cards */}
-        <AnalyticsSectionCards data={analytics} isLoading={loading} />
+        <AnalyticsSectionCards data={analytics} isLoading={loading} isError={!!error && !data} />
 
-        {/* Chart */}
         <AnalyticsChartInteractive
           data={analytics?.data ?? []}
           range={range}
@@ -31,7 +29,6 @@ export function AnalyticsPage() {
           isLoading={loading}
         />
 
-        {/* Recent transactions */}
         <RecentTransactions isLoading={loading} />
       </div>
     </div>

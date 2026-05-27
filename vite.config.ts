@@ -25,6 +25,7 @@ export default defineConfig(({ mode }) => {
         "/api/graphql": {
           target: new URL(env.VITE_GRAPHQL_ENDPOINT).origin,
           changeOrigin: true,
+          rewrite: () => "/",
           headers: {
             authorization: env.API_KEY,
           },

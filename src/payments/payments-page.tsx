@@ -41,8 +41,6 @@ const ALL_STATUSES: { value: ChargeStatus | "ALL"; label: string }[] = [
   { value: "PAID_OUT",          label: "Paid out"        },
 ];
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
 function PaymentRowSkeleton() {
   return (
     <div className="flex items-center justify-between rounded-lg border p-4 gap-4">
@@ -62,8 +60,6 @@ function PaymentRowSkeleton() {
   );
 }
 
-// ─── Empty / error states ─────────────────────────────────────────────────────
-
 function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 py-12">
@@ -80,24 +76,27 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
+function ErrorState() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <p className="text-sm text-muted-foreground">—</p>
+    </div>
+  );
+}
 export function PaymentsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ChargeStatus | "ALL">("ALL");
   const [page, setPage]     = useState(1);
 
-  // Debounce search input — avoids firing a query on every keystroke
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 400);
     return () => clearTimeout(t);
   }, [search]);
 
-  // Reset page when filters change
   useEffect(() => { setPage(1); }, [debouncedSearch, status]);
 
-  const { data, loading } = useQuery<ChargesResponse>(CHARGES_QUERY, {
+  const { data, loading, error } = useQuery<ChargesResponse>(CHARGES_QUERY, {
     variables: {
       search: debouncedSearch || undefined,
       status: status !== "ALL" ? status : undefined,
@@ -114,7 +113,6 @@ export function PaymentsPage() {
   return (
     <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
       <Card className="cursor-default">
-        {/* Card header — title + filters */}
         <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-4">
           <div>
             <CardTitle>All Transactions</CardTitle>
@@ -161,10 +159,11 @@ export function PaymentsPage() {
           </div>
         </CardHeader>
 
-        {/* Rows */}
         <CardContent className="space-y-3">
           {loading ? (
             Array.from({ length: PAGE_SIZE }).map((_, i) => <PaymentRowSkeleton key={i} />)
+          ) : error && !data ? (
+            <ErrorState />
           ) : charges.length === 0 ? (
             <EmptyState hasFilters={hasFilters} />
           ) : (
@@ -174,7 +173,6 @@ export function PaymentsPage() {
           )}
         </CardContent>
 
-        {/* Footer — count + load more */}
         {!loading && charges.length > 0 && (
           <CardFooter className="flex items-center justify-between border-t pt-4">
             <p className="text-xs text-muted-foreground">
