@@ -149,7 +149,6 @@ export function AnalyticsChartInteractive({
                 }
               />
 
-              {/* Dashed secondary: transaction count */}
               <Area
                 type="monotone"
                 dataKey="count"
@@ -159,7 +158,6 @@ export function AnalyticsChartInteractive({
                 strokeWidth={1}
               />
 
-              {/* Main area: payment volume */}
               <Area
                 type="monotone"
                 dataKey="amount"
