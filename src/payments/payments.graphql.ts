@@ -1,8 +1,6 @@
 import { gql } from "@/shared/lib/graphql";
 import type { Charge } from "./payment-types";
 
-// ─── Queries ──────────────────────────────────────────────────────────────────
-
 export const CHARGES_QUERY = gql`
   query Charges(
     $search: String
@@ -74,8 +72,6 @@ export const CHARGE_QUERY = gql`
     }
   }
 `;
-
-// ─── Response types ───────────────────────────────────────────────────────────
 
 export type ChargesResponse = { charges: Charge[] };
 export type ChargeResponse  = { charge: Charge | null };

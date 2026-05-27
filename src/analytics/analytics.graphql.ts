@@ -26,8 +26,6 @@ export const ANALYTICS_KPI_QUERY = gql`
   }
 `;
 
-// ─── Response types ───────────────────────────────────────────────────────────
-
 export type AnalyticsKpiResponse = {
   chargesDateRangeKpi: AnalyticsData;
 };
