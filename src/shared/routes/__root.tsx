@@ -1,5 +1,5 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
-import { RootLayout } from "@/layout/root-layout";
+import { RootLayout } from "@/shared/layout/root-layout";
 
 function Root() {
   return (
