@@ -1,13 +1,11 @@
 import { useMemo } from "react";
+import { DEFAULT_CURRENCY } from "@/shared/config";
 import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
 import { daysAgo } from "@/shared/lib/date";
 import { graphql } from "@/shared/lib/graphql";
 import type { DateRangeOption } from "./analytics-types";
 
 type ChartInterval = "day" | "week" | "month";
-type Currency = "EUR";
-
-const DEFAULT_CURRENCY: Currency = "EUR";
 
 function intervalFor(range: DateRangeOption): ChartInterval {
   if (range >= 365) return "month";

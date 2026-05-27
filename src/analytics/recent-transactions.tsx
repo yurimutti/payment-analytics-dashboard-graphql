@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Eye, MoreHorizontal } from "lucide-react";
-import { INITIALS_LENGTH, RECENT_TRANSACTIONS_SIZE } from "@/payments/constants";
 import { PaymentStatusBadge } from "@/payments/payment-status-badge";
+import { INITIALS_LENGTH, RECENT_TRANSACTIONS_SIZE, ROUTES } from "@/shared/config";
 import { formatCurrency } from "@/shared/lib/currency";
 import { timeAgo } from "@/shared/lib/date";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
@@ -88,7 +88,7 @@ export function RecentTransactions() {
           <CardDescription>Latest customer transactions</CardDescription>
         </div>
         <Link
-          to="/payments"
+          to={ROUTES.PAYMENTS.LIST}
           className={`${buttonVariants({ variant: "outline", size: "sm" })} cursor-pointer`}
         >
           <Eye className="h-4 w-4 mr-2" />
@@ -101,7 +101,7 @@ export function RecentTransactions() {
           {charges.map((charge) => (
             <Link
               key={charge.id}
-              to="/payments/$id"
+              to={ROUTES.PAYMENTS.DETAIL}
               params={{ id: charge.id }}
               className="flex p-3 rounded-lg border gap-2 cursor-pointer hover:bg-accent/50 transition-colors"
             >
@@ -143,7 +143,7 @@ export function RecentTransactions() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenuItem className="cursor-pointer" asChild>
-                        <Link to="/payments/$id" params={{ id: charge.id }}>
+                        <Link to={ROUTES.PAYMENTS.DETAIL} params={{ id: charge.id }}>
                           View Details
                         </Link>
                       </DropdownMenuItem>

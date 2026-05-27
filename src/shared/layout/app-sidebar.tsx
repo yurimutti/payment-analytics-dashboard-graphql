@@ -1,6 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, CreditCard } from "lucide-react";
-import type * as React from "react";
+import { APP_DESCRIPTION, APP_NAME, NAV_ITEMS, ROUTES } from "@/shared/config";
 import { cn } from "@/shared/lib/utils";
 import {
   Sidebar,
@@ -47,25 +46,20 @@ function AppLogo({ size = 36 }: { size?: number }) {
   );
 }
 
-const NAV_ITEMS = [
-  { href: "/", label: "Analytics", icon: BarChart3, description: "KPIs & trends" },
-  { href: "/payments", label: "Payments", icon: CreditCard, description: "All transactions" },
-];
-
-export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar() {
   const { location } = useRouterState();
   const currentPath = location.pathname;
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border" {...props}>
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="px-4 py-5">
-        <Link to="/" className="flex items-center gap-3">
+        <Link to={ROUTES.HOME} className="flex items-center gap-3">
           <AppLogo size={36} />
           <div className="flex flex-col">
             <span className="text-base font-bold leading-tight text-sidebar-foreground">
-              PayDash
+              {APP_NAME}
             </span>
-            <span className="text-xs text-muted-foreground leading-tight">Analytics Platform</span>
+            <span className="text-xs text-muted-foreground leading-tight">{APP_DESCRIPTION}</span>
           </div>
         </Link>
       </SidebarHeader>
@@ -80,7 +74,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
               {NAV_ITEMS.map(({ href, label, icon: Icon, description }) => {
-                const isActive = href === "/" ? currentPath === "/" : currentPath.startsWith(href);
+                const isActive =
+                  href === ROUTES.HOME ? currentPath === ROUTES.HOME : currentPath.startsWith(href);
                 return (
                   <SidebarMenuItem key={href}>
                     <SidebarMenuButton

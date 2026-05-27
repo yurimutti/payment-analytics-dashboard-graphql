@@ -8,6 +8,7 @@
       "!**/node_modules/**",
       "!src/routeTree.gen.ts",
       "!src/shared/lib/graphql/gql/**",
+      "!src/shared/lib/graphql/schema.graphql",
       "!src/**/*.generated.ts",
       "!src/styles.css"
     ]

@@ -50,10 +50,6 @@ export function formatChartTick(isoDate: string): string {
   });
 }
 
-/**
- * Returns a human-readable "time ago" string from a Unix timestamp.
- * e.g. 1761746741 → "2 hours ago"
- */
 export function timeAgo(unixSeconds: number): string {
   return formatDistanceToNow(fromUnixTime(unixSeconds), { addSuffix: true });
 }

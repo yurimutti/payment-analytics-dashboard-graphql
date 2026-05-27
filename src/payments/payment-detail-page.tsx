@@ -9,6 +9,7 @@ import {
   Tag,
   User,
 } from "lucide-react";
+import { INITIALS_LENGTH, ROUTES } from "@/shared/config";
 import { formatCurrency } from "@/shared/lib/currency";
 import { formatUnixDate, timeAgo } from "@/shared/lib/date";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
@@ -16,7 +17,6 @@ import { Badge } from "@/shared/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { ErrorState } from "@/shared/ui/error-state";
 import { Separator } from "@/shared/ui/separator";
-import { INITIALS_LENGTH } from "./constants";
 import { PaymentDetailSkeleton } from "./payment-detail.skeleton";
 import { PaymentStatusBadge } from "./payment-status-badge";
 import { type ChargeDetail, usePaymentDetailQuery } from "./use-payment-detail-query";
@@ -63,7 +63,7 @@ function NotFound({ id }: { id: string }) {
         <p className="text-sm font-medium">Payment not found</p>
         <p className="mt-1 font-mono text-xs text-muted-foreground">{id}</p>
       </div>
-      <Link to="/payments" className="text-sm text-primary hover:underline">
+      <Link to={ROUTES.PAYMENTS.LIST} className="text-sm text-primary hover:underline">
         ← Back to payments
       </Link>
     </div>
@@ -85,7 +85,10 @@ export function PaymentDetailPage() {
           description={errorMessage}
           onRetry={() => refetch()}
         />
-        <Link to="/payments" className="text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          to={ROUTES.PAYMENTS.LIST}
+          className="text-sm text-muted-foreground hover:text-foreground"
+        >
           ← Back to payments
         </Link>
       </div>
@@ -125,7 +128,7 @@ export function PaymentDetailPage() {
   return (
     <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
       <Link
-        to="/payments"
+        to={ROUTES.PAYMENTS.LIST}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft size={14} />

@@ -1,5 +1,5 @@
 import type { ResultOf } from "@graphql-typed-document-node/core";
-import { RECENT_TRANSACTIONS_SIZE } from "@/payments/constants";
+import { RECENT_TRANSACTIONS_SIZE } from "@/shared/config";
 import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
 

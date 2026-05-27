@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { MoreHorizontal } from "lucide-react";
+import { INITIALS_LENGTH, ROUTES } from "@/shared/config";
 import { formatCurrency } from "@/shared/lib/currency";
 import { timeAgo } from "@/shared/lib/date";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
@@ -10,8 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
-import { INITIALS_LENGTH } from "./constants";
 import { PaymentStatusBadge } from "./payment-status-badge";
 import type { Charge } from "./payment-types";
 
@@ -50,23 +49,9 @@ export function PaymentRow({ charge }: PaymentRowProps) {
       </Avatar>
 
       <div className="flex flex-1 items-center gap-x-3 gap-y-2 min-w-0 flex-wrap">
-        <Link to="/payments/$id" params={{ id: charge.id }} className="min-w-32 flex-1">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <p className="text-sm font-medium truncate">{getDisplayName(charge)}</p>
-            </TooltipTrigger>
-            <TooltipContent side="top" align="start">
-              {getDisplayName(charge)}
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <p className="text-xs text-muted-foreground truncate">{getEmail(charge)}</p>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" align="start">
-              {getEmail(charge)}
-            </TooltipContent>
-          </Tooltip>
+        <Link to={ROUTES.PAYMENTS.DETAIL} params={{ id: charge.id }} className="min-w-32 flex-1">
+          <p className="text-sm font-medium truncate">{getDisplayName(charge)}</p>
+          <p className="text-xs text-muted-foreground truncate">{getEmail(charge)}</p>
         </Link>
 
         <div className="flex items-center gap-3 shrink-0 ml-auto">
@@ -100,7 +85,7 @@ export function PaymentRow({ charge }: PaymentRowProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem className="cursor-pointer" asChild>
-                <Link to="/payments/$id" params={{ id: charge.id }}>
+                <Link to={ROUTES.PAYMENTS.DETAIL} params={{ id: charge.id }}>
                   View Details
                 </Link>
               </DropdownMenuItem>

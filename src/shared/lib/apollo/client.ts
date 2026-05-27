@@ -1,8 +1,9 @@
 import { ApolloClient, from, HttpLink, InMemoryCache } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
+import { env } from "@/shared/config";
 
 const httpLink = new HttpLink({
-  uri: import.meta.env.DEV ? "/api/graphql" : import.meta.env.VITE_GRAPHQL_ENDPOINT,
+  uri: import.meta.env.DEV ? "/api/graphql" : env.VITE_GRAPHQL_ENDPOINT,
 });
 
 const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
