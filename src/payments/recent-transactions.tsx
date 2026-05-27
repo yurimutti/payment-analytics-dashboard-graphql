@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/ui/card";
-import { Button } from "@/shared/ui/button";
+import { Button, buttonVariants } from "@/shared/ui/button";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import {
   DropdownMenu,
@@ -21,7 +21,7 @@ import { timeAgo } from "@/shared/lib/date";
 import { useQuery } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
 import type { ResultOf } from "@graphql-typed-document-node/core";
-import { PaymentStatusBadge } from "@/payments/payment-status-badge";
+import { PaymentStatusBadge } from "./payment-status-badge";
 
 const RECENT_CHARGES_QUERY = graphql(`
   query RecentCharges {
@@ -89,9 +89,6 @@ function getDisplayName(charge: Charge): string {
 function getEmail(charge: Charge): string {
   return charge.customer?.email ?? charge.orderId ?? "—";
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
 interface RecentTransactionsProps {
   isLoading?: boolean;
 }
@@ -111,12 +108,13 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
           <CardTitle>Recent Transactions</CardTitle>
           <CardDescription>Latest customer transactions</CardDescription>
         </div>
-        <Button variant="outline" size="sm" className="cursor-pointer" asChild>
-          <Link to="/payments">
-            <Eye className="h-4 w-4 mr-2" />
-            View All
-          </Link>
-        </Button>
+        <Link
+          to="/payments"
+          className={buttonVariants({ variant: "outline", size: "sm" }) + " cursor-pointer"}
+        >
+          <Eye className="h-4 w-4 mr-2" />
+          View All
+        </Link>
       </CardHeader>
 
       <CardContent className="space-y-3">
@@ -125,7 +123,12 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
         ) : (
           <div className="space-y-3">
           {charges.map((charge) => (
-            <div key={charge.id} className="flex p-3 rounded-lg border gap-2">
+            <Link
+              key={charge.id}
+              to="/payments/$id"
+              params={{ id: charge.id }}
+              className="flex p-3 rounded-lg border gap-2 cursor-pointer hover:bg-accent/50 transition-colors"
+            >
               <Avatar className="h-8 w-8 shrink-0">
                 <AvatarFallback className="text-xs font-semibold bg-surface-3 text-ink-subtle">
                   {getInitials(charge)}
@@ -133,13 +136,11 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
               </Avatar>
 
               <div className="flex flex-1 items-center flex-wrap justify-between gap-2">
-                {/* Name + email */}
                 <div className="min-w-0">
                   <p className="text-sm font-medium truncate">{getDisplayName(charge)}</p>
                   <p className="text-xs text-muted-foreground truncate">{getEmail(charge)}</p>
                 </div>
 
-                {/* Status + amount + time + menu */}
                 <div className="flex items-center gap-3">
                   <PaymentStatusBadge status={charge.status} />
 
@@ -152,11 +153,16 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 cursor-pointer">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 cursor-pointer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenuItem className="cursor-pointer" asChild>
                         <Link to="/payments/$id" params={{ id: charge.id }}>
                           View Details
@@ -166,7 +172,7 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
                   </DropdownMenu>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
           </div>
         )}

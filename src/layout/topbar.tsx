@@ -21,11 +21,11 @@ export function Topbar() {
   if (!config) return null;
 
   return (
-    <header className="shrink-0 px-4 py-5">
-      <h1 className="text-xl font-semibold tracking-tight text-foreground">
+    <header className="shrink-0 flex flex-col justify-center px-4 py-5 min-h-19">
+      <h1 className="text-base font-bold tracking-tight text-foreground leading-tight">
         {config.title}
       </h1>
-      <p className="mt-0.5 text-sm text-muted-foreground">{config.subtitle}</p>
+      <p className="text-xs text-muted-foreground leading-tight">{config.subtitle}</p>
     </header>
   );
 }

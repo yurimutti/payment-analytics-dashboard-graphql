@@ -3,7 +3,7 @@ import { useQuery } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
 import { AnalyticsSectionCards } from "./analytics-section-cards";
 import { AnalyticsChartInteractive } from "./analytics-chart-interactive";
-import { RecentTransactions } from "./recent-transactions";
+import { RecentTransactions } from "@/payments/recent-transactions";
 import { daysAgo } from "@/shared/lib/date";
 import type { DateRangeOption } from "./analytics-types";
 
