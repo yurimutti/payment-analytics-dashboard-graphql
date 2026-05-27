@@ -1,6 +1,5 @@
 import { ApolloClient, HttpLink, InMemoryCache, from } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
-import { toast } from "@/shared/ui/toaster";
 
 const httpLink = new HttpLink({
   uri: import.meta.env.DEV
@@ -8,18 +7,13 @@ const httpLink = new HttpLink({
     : import.meta.env.VITE_GRAPHQL_ENDPOINT,
 });
 
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-  graphQLErrors?.forEach(({ message, locations, path }) => {
-    toast.error(message);
-    if (import.meta.env.DEV) {
-      console.error("[GraphQL error]", message, { locations, path });
-    }
-  });
+const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
+  if (!import.meta.env.DEV) return;
+  if (graphQLErrors?.length) {
+    console.error(`[GraphQL ${operation.operationName}]`, graphQLErrors);
+  }
   if (networkError) {
-    toast.error("Network error — please check your connection.");
-    if (import.meta.env.DEV) {
-      console.error("[Network error]", networkError);
-    }
+    console.error(`[Network ${operation.operationName}]`, networkError);
   }
 });
 

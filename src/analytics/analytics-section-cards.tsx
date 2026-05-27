@@ -13,6 +13,11 @@ import type { AnalyticsData } from "./analytics-types";
 import { AnalyticsCardSkeleton } from "./analytics-card.skeleton";
 import { SECTION_CARDS_COUNT } from "./constants";
 
+interface AnalyticsSectionCardsProps {
+  data: AnalyticsData | null;
+  isLoading: boolean;
+}
+
 interface Metric {
   title: string;
   value: string;
@@ -76,31 +81,7 @@ function deriveMetrics(data: AnalyticsData): Metric[] {
   ];
 }
 
-interface AnalyticsSectionCardsProps {
-  data: AnalyticsData | null;
-  isLoading: boolean;
-  isError?: boolean;
-}
-
-export function AnalyticsSectionCards({ data, isLoading, isError }: AnalyticsSectionCardsProps) {
-  if (isError) {
-    return (
-      <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: SECTION_CARDS_COUNT }).map((_, i) => (
-          <Card key={i}>
-            <CardHeader>
-              <CardDescription>—</CardDescription>
-              <CardTitle className="text-2xl font-semibold text-muted-foreground">—</CardTitle>
-            </CardHeader>
-            <CardFooter className="flex-col items-start gap-1.5 text-sm">
-              <div className="text-muted-foreground">—</div>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-    );
-  }
-
+export function AnalyticsSectionCards({ data, isLoading }: AnalyticsSectionCardsProps) {
   if (isLoading || !data) {
     return (
       <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

@@ -1,6 +1,4 @@
 import { useParams, Link } from "@tanstack/react-router";
-import { useQuery } from "@/shared/lib/apollo";
-import { graphql } from "@/shared/lib/graphql";
 import {
   ArrowLeft,
   CreditCard,
@@ -13,9 +11,11 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
+import { ErrorState } from "@/shared/ui/error-state";
 import { PaymentStatusBadge } from "./payment-status-badge";
 import { PaymentDetailSkeleton } from "./payment-detail.skeleton";
 import { INITIALS_LENGTH } from "./constants";
+import { usePaymentDetailQuery, type ChargeDetail } from "./use-payment-detail-query";
 import {
   Card,
   CardContent,
@@ -26,36 +26,8 @@ import {
 import { Separator } from "@/shared/ui/separator";
 import { formatCurrency } from "@/shared/lib/currency";
 import { formatUnixDate, timeAgo } from "@/shared/lib/date";
-import type { ResultOf } from "@graphql-typed-document-node/core";
 
-const CHARGE_QUERY = graphql(`
-  query Charge($id: ID!) {
-    charge(id: $id) {
-      id
-      amount
-      currency
-      status
-      createdAt
-      updatedAt
-      orderId
-      sequenceId
-      descriptor
-      description
-      livemode
-      statusCode
-      statusMessage
-      customer { name email phone }
-      paymentMethod {
-        method
-        card { brand last4 expiration }
-      }
-      metadata { key value }
-    }
-  }
-`);
-
-type Charge = NonNullable<ResultOf<typeof CHARGE_QUERY>["charge"]>;
-type ChargeStatus = Charge["status"];
+type ChargeStatus = ChargeDetail["status"];
 
 function StatusIcon({ status }: { status: ChargeStatus }) {
   if (status === "SUCCEEDED" || status === "PAID_OUT")
@@ -107,18 +79,23 @@ function NotFound({ id }: { id: string }) {
 export function PaymentDetailPage() {
   const { id } = useParams({ from: "/payments/$id" });
 
-  const { data, loading, error } = useQuery(CHARGE_QUERY, {
-    variables: { id },
-    fetchPolicy: "cache-and-network",
-  });
+  const { payment, loading, error, errorMessage, refetch, notFound } = usePaymentDetailQuery(id);
 
-  const charge   = data?.charge ?? null;
-  const notFound = !loading && (charge === null || !!error);
+  if (loading) return <PaymentDetailSkeleton />;
 
-  if (loading)  return <PaymentDetailSkeleton />;
-  if (notFound) return <NotFound id={id} />;
+  if (error && !payment) {
+    return (
+      <ErrorState
+        title="Could not load payment details"
+        description={errorMessage}
+        onRetry={() => refetch()}
+      />
+    );
+  }
 
-  const c = charge!;
+  if (notFound || !payment) return <NotFound id={id} />;
+
+  const c = payment;
   const customerInitials = c.customer?.name
     ? c.customer.name.split(" ").map((w) => w[0]).join("").slice(0, INITIALS_LENGTH).toUpperCase()
     : "?";

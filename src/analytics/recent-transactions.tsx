@@ -16,34 +16,13 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { ErrorState } from "@/shared/ui/error-state";
 import { formatCurrency } from "@/shared/lib/currency";
 import { timeAgo } from "@/shared/lib/date";
-import { useQuery } from "@/shared/lib/apollo";
-import { graphql } from "@/shared/lib/graphql";
-import type { ResultOf } from "@graphql-typed-document-node/core";
 import { PaymentStatusBadge } from "@/payments/payment-status-badge";
 import { RECENT_TRANSACTIONS_SIZE, INITIALS_LENGTH } from "@/payments/constants";
 import { TransactionSkeleton } from "./transaction.skeleton";
-
-const RECENT_CHARGES_QUERY = graphql(`
-  query RecentCharges($size: Int) {
-    charges(size: $size) {
-      items {
-        id
-        amount
-        currency
-        status
-        createdAt
-        orderId
-        customer { name email }
-        paymentMethod { method }
-      }
-      total
-    }
-  }
-`);
-
-type Charge = ResultOf<typeof RECENT_CHARGES_QUERY>["charges"]["items"][number];
+import { useRecentChargesQuery, type RecentCharge as Charge } from "./use-recent-charges-query";
 
 function getInitials(charge: Charge): string {
   const name = charge.customer?.name;
@@ -65,20 +44,10 @@ function getDisplayName(charge: Charge): string {
 function getEmail(charge: Charge): string {
   return charge.customer?.email ?? charge.orderId ?? "—";
 }
-interface RecentTransactionsProps {
-  isLoading?: boolean;
-}
+export function RecentTransactions() {
+  const { charges, loading, error, errorMessage, refetch, hasData } = useRecentChargesQuery();
 
-export function RecentTransactions({ isLoading = false }: RecentTransactionsProps) {
-  const { data, loading: queryLoading } = useQuery(RECENT_CHARGES_QUERY, {
-    variables: { size: RECENT_TRANSACTIONS_SIZE },
-    fetchPolicy: "cache-and-network",
-  });
-
-  const charges = data?.charges.items ?? [];
-  const showSkeleton = queryLoading || isLoading;
-
-  if (showSkeleton) {
+  if (loading && !hasData) {
     return (
       <Card className="cursor-pointer">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -90,6 +59,26 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
         </CardHeader>
         <CardContent className="space-y-3">
           {Array.from({ length: RECENT_TRANSACTIONS_SIZE }).map((_, i) => <TransactionSkeleton key={i} />)}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error && !hasData) {
+    return (
+      <Card className="cursor-pointer">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <div>
+            <CardTitle>Recent Transactions</CardTitle>
+            <CardDescription>Latest customer transactions</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <ErrorState
+            title="Could not load recent transactions"
+            description={errorMessage}
+            onRetry={() => refetch()}
+          />
         </CardContent>
       </Card>
     );

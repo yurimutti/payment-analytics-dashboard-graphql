@@ -1,78 +1,47 @@
-import { useState, useMemo } from "react";
-import { useQuery } from "@/shared/lib/apollo";
-import { graphql } from "@/shared/lib/graphql";
+import { useState } from "react";
 import { AnalyticsSectionCards } from "./analytics-section-cards";
 import { AnalyticsChartInteractive } from "./analytics-chart-interactive";
 import { RecentTransactions } from "./recent-transactions";
-import { daysAgo } from "@/shared/lib/date";
+import { ErrorState } from "@/shared/ui/error-state";
+import { InlineWarning } from "@/shared/ui/inline-warning";
 import type { DateRangeOption } from "./analytics-types";
 import { DEFAULT_RANGE_DAYS } from "./constants";
-
-type ChartInterval = "day" | "week" | "month";
-
-function intervalFor(range: DateRangeOption): ChartInterval {
-  if (range >= 365) return "month";
-  if (range >= 90)  return "week";
-  return "day";
-}
-
-const ANALYTICS_KPI_QUERY = graphql(`
-  query AnalyticsKpi($start: Int, $end: Int, $currency: Currencies, $interval: Interval) {
-    chargesDateRangeKPI(start: $start, end: $end, currency: $currency, interval: $interval) {
-      currency
-      total {
-        succeededAmount
-        succeededCount
-        capturedAmount
-        capturedCount
-        directAmount
-        directCount
-        canceledAmount
-        canceledCount
-        refundedAmount
-        refundedCount
-        failedAmount
-        failedCount
-      }
-      data {
-        timestamp
-        succeededAmount
-        succeededCount
-        capturedAmount
-        capturedCount
-        directAmount
-        directCount
-        failedAmount
-        failedCount
-        canceledAmount
-        canceledCount
-        refundedAmount
-        refundedCount
-      }
-    }
-  }
-`);
+import { useAnalyticsKpiQuery } from "./use-analytics-kpi-query";
 
 export function AnalyticsPage() {
   const [range, setRange] = useState<DateRangeOption>(DEFAULT_RANGE_DAYS);
 
-  const { start, end, interval } = useMemo(() => ({
-    start:    Math.floor(daysAgo(range).getTime() / 1000),
-    end:      Math.floor(Date.now() / 1000),
-    interval: intervalFor(range),
-  }), [range]);
+  const {
+    analytics,
+    loading,
+    error,
+    errorMessage,
+    refetch,
+    hasData,
+  } = useAnalyticsKpiQuery({ range });
 
-  const { data, loading, error } = useQuery(ANALYTICS_KPI_QUERY, {
-    variables: { start, end, currency: "EUR", interval },
-    fetchPolicy: "cache-and-network",
-  });
-
-  const analytics = data?.chargesDateRangeKPI ?? null;
+  if (error && !hasData) {
+    return (
+      <div className="flex-1 px-4 pt-6 pb-10">
+        <ErrorState
+          title="Could not load analytics"
+          description={errorMessage}
+          onRetry={() => refetch()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
+      {error && hasData && (
+        <InlineWarning>
+          Some analytics data may be incomplete. Try refreshing the page.
+        </InlineWarning>
+      )}
+
       <div className="@container/main space-y-6">
-        <AnalyticsSectionCards data={analytics} isLoading={loading} isError={!!error && !data} />
+        <AnalyticsSectionCards data={analytics} isLoading={loading} />
 
         <AnalyticsChartInteractive
           data={analytics?.data ?? []}
@@ -81,7 +50,7 @@ export function AnalyticsPage() {
           isLoading={loading}
         />
 
-        <RecentTransactions isLoading={loading} />
+        <RecentTransactions />
       </div>
     </div>
   );

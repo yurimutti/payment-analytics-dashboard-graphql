@@ -1,35 +1,5 @@
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
-import { useQuery } from "@/shared/lib/apollo";
-import { graphql } from "@/shared/lib/graphql";
-
-const CHARGES_QUERY = graphql(`
-  query Charges(
-    $search: String
-    $filter: SearchableChargeFilterInput
-    $size: Int
-    $from: Int
-  ) {
-    charges(search: $search, filter: $filter, size: $size, from: $from) {
-      items {
-        id
-        amount
-        currency
-        status
-        createdAt
-        updatedAt
-        orderId
-        livemode
-        customer { name email phone }
-        paymentMethod {
-          method
-          card { brand last4 expiration }
-        }
-      }
-      total
-    }
-  }
-`);
 import { PaymentRow } from "./payment-row";
 import { PaymentRowSkeleton } from "./payment-row.skeleton";
 import { Skeleton } from "@/shared/ui/skeleton";
@@ -51,8 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select";
+import { ErrorState } from "@/shared/ui/error-state";
+import { InlineWarning } from "@/shared/ui/inline-warning";
 import type { ChargeStatus } from "./payment-types";
 import { PAGE_SIZE, SEARCH_DEBOUNCE_MS } from "./constants";
+import { usePaymentsQuery } from "./use-payments-query";
 
 const ALL_STATUSES: { value: ChargeStatus | "ALL"; label: string }[] = [
   { value: "ALL",                label: "All statuses"   },
@@ -95,13 +68,6 @@ function EmptyState({
   );
 }
 
-function ErrorState() {
-  return (
-    <div className="flex items-center justify-center py-12">
-      <p className="text-sm text-muted-foreground">—</p>
-    </div>
-  );
-}
 interface FilterBarProps {
   search: string;
   status: ChargeStatus | "ALL";
@@ -164,18 +130,20 @@ export function PaymentsPage() {
 
   useEffect(() => { setPage(1); }, [debouncedSearch, status]);
 
-  const { data, loading, error } = useQuery(CHARGES_QUERY, {
-    variables: {
-      search: debouncedSearch || undefined,
-      filter: status !== "ALL" ? { status: { eq: status } } : undefined,
-      size: PAGE_SIZE * page,
-      from: 0,
-    },
-    fetchPolicy: "cache-and-network",
+  const {
+    charges,
+    total,
+    loading,
+    error,
+    errorMessage,
+    refetch,
+    hasData,
+  } = usePaymentsQuery({
+    search: debouncedSearch,
+    status,
+    size: PAGE_SIZE * page,
   });
 
-  const charges    = data?.charges.items ?? [];
-  const total      = data?.charges.total  ?? 0;
   const hasMore    = charges.length < total;
   const hasFilters = debouncedSearch !== "" || status !== "ALL";
 
@@ -184,7 +152,7 @@ export function PaymentsPage() {
     setStatus("ALL");
   }
 
-  if (loading && !data) {
+  if (loading && !hasData) {
     return (
       <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
         <Card className="cursor-default">
@@ -204,7 +172,7 @@ export function PaymentsPage() {
     );
   }
 
-  if (error && !data) {
+  if (error && !hasData) {
     return (
       <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
         <Card className="cursor-default">
@@ -212,14 +180,18 @@ export function PaymentsPage() {
             <CardTitle>All Transactions</CardTitle>
           </CardHeader>
           <CardContent>
-            <ErrorState />
+            <ErrorState
+              title="Could not load payments"
+              description={errorMessage}
+              onRetry={() => refetch()}
+            />
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  if (charges.length === 0) {
+  if (!hasData) {
     return (
       <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
         <Card className="cursor-default">
@@ -247,6 +219,12 @@ export function PaymentsPage() {
 
   return (
     <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
+      {error && (
+        <InlineWarning>
+          Some payment data may be incomplete. Try refreshing the page.
+        </InlineWarning>
+      )}
+
       <Card className="cursor-default">
         <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-4">
           <div>
