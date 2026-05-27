@@ -1,19 +1,7 @@
 import { gql } from "@/shared/lib/graphql";
+import type { Charge } from "./payment-types";
 
-/**
- * Payments GraphQL queries
- *
- * Verify field names against the Apollo Studio Sandbox before replacing mock data:
- * https://studio.apollographql.com/sandbox/explorer
- */
-
-// ─── Payments list ────────────────────────────────────────────────────────────
-// Usage (replace useEffect mock in payments-page.tsx):
-//   const { data, loading } = useQuery(CHARGES_QUERY, {
-//     variables: { search, status: status !== "ALL" ? status : undefined, limit: PAGE_SIZE },
-//     fetchPolicy: "cache-and-network",
-//   });
-//   // data?.charges → Charge[]
+// ─── Queries ──────────────────────────────────────────────────────────────────
 
 export const CHARGES_QUERY = gql`
   query Charges(
@@ -48,14 +36,6 @@ export const CHARGES_QUERY = gql`
     }
   }
 `;
-
-// ─── Payment detail ───────────────────────────────────────────────────────────
-// Usage (replace useEffect mock in payment-detail-page.tsx):
-//   const { data, loading } = useQuery(CHARGE_QUERY, {
-//     variables: { id },
-//     fetchPolicy: "cache-first",
-//   });
-//   // data?.charge → Charge (or null if not found)
 
 export const CHARGE_QUERY = gql`
   query Charge($id: ID!) {
@@ -94,3 +74,8 @@ export const CHARGE_QUERY = gql`
     }
   }
 `;
+
+// ─── Response types ───────────────────────────────────────────────────────────
+
+export type ChargesResponse = { charges: Charge[] };
+export type ChargeResponse  = { charge: Charge | null };

@@ -18,8 +18,10 @@ import {
 import { Skeleton } from "@/shared/ui/skeleton";
 import { formatCurrency } from "@/shared/lib/currency";
 import { timeAgo } from "@/shared/lib/date";
+import { useQuery } from "@/shared/lib/graphql";
 import type { Charge } from "@/payments/payment-types";
-import { MOCK_CHARGES } from "@/payments/payments-mock";
+import { CHARGES_QUERY } from "@/payments/payments.graphql";
+import type { ChargesResponse } from "@/payments/payments.graphql";
 import { PaymentStatusBadge } from "@/payments/payment-status-badge";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -76,7 +78,13 @@ interface RecentTransactionsProps {
 }
 
 export function RecentTransactions({ isLoading = false }: RecentTransactionsProps) {
-  const recent = MOCK_CHARGES.slice(0, 5);
+  const { data, loading: queryLoading } = useQuery<ChargesResponse>(CHARGES_QUERY, {
+    variables: { limit: 5 },
+    fetchPolicy: "cache-and-network",
+  });
+
+  const charges = data?.charges ?? [];
+  const showSkeleton = queryLoading || isLoading;
 
   return (
     <Card className="cursor-pointer">
@@ -94,11 +102,11 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {isLoading ? (
+        {showSkeleton ? (
           Array.from({ length: 5 }).map((_, i) => <TransactionSkeleton key={i} />)
         ) : (
           <div className="space-y-3">
-          {recent.map((charge) => (
+          {charges.map((charge) => (
             <div key={charge.id} className="flex p-3 rounded-lg border gap-2">
               <Avatar className="h-8 w-8 shrink-0">
                 <AvatarFallback className="text-xs font-semibold bg-surface-3 text-ink-subtle">

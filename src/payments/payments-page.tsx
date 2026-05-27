@@ -1,6 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
-import { MOCK_CHARGES } from "./payments-mock";
+import { useQuery } from "@/shared/lib/graphql";
+import { CHARGES_QUERY } from "./payments.graphql";
+import type { ChargesResponse } from "./payments.graphql";
 import { PaymentRow } from "./payment-row";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
@@ -21,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select";
-import type { Charge, ChargeStatus } from "./payment-types";
+import type { ChargeStatus } from "./payment-types";
 
 const PAGE_SIZE = 10;
 
@@ -38,18 +40,6 @@ const ALL_STATUSES: { value: ChargeStatus | "ALL"; label: string }[] = [
   { value: "EXPIRED",           label: "Expired"         },
   { value: "PAID_OUT",          label: "Paid out"        },
 ];
-
-function applyFilters(charges: Charge[], search: string, status: ChargeStatus | "ALL"): Charge[] {
-  return charges.filter((c) => {
-    if (status !== "ALL" && c.status !== status) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      const fields = [c.id, c.orderId ?? "", c.customer?.name ?? "", c.customer?.email ?? ""];
-      if (!fields.some((f) => f.toLowerCase().includes(q))) return false;
-    }
-    return true;
-  });
-}
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -93,29 +83,33 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function PaymentsPage() {
-  const [search, setSearch]   = useState("");
-  const [status, setStatus]   = useState<ChargeStatus | "ALL">("ALL");
-  const [page, setPage]       = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<ChargeStatus | "ALL">("ALL");
+  const [page, setPage]     = useState(1);
 
-  // Simulate async fetch — replace with useQuery when integrating Apollo
+  // Debounce search input — avoids firing a query on every keystroke
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, [search, status]);
+    const t = setTimeout(() => setDebouncedSearch(search), 400);
+    return () => clearTimeout(t);
+  }, [search]);
 
-  // Reset page on filter change
-  useEffect(() => { setPage(1); }, [search, status]);
+  // Reset page when filters change
+  useEffect(() => { setPage(1); }, [debouncedSearch, status]);
 
-  const filtered = useMemo(
-    () => applyFilters(MOCK_CHARGES, search, status),
-    [search, status],
-  );
+  const { data, loading } = useQuery<ChargesResponse>(CHARGES_QUERY, {
+    variables: {
+      search: debouncedSearch || undefined,
+      status: status !== "ALL" ? status : undefined,
+      limit: PAGE_SIZE * page,
+      offset: 0,
+    },
+    fetchPolicy: "cache-and-network",
+  });
 
-  const visible    = filtered.slice(0, page * PAGE_SIZE);
-  const hasMore    = visible.length < filtered.length;
-  const hasFilters = search !== "" || status !== "ALL";
+  const charges    = data?.charges ?? [];
+  const hasMore    = charges.length === PAGE_SIZE * page;
+  const hasFilters = debouncedSearch !== "" || status !== "ALL";
 
   return (
     <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
@@ -125,7 +119,7 @@ export function PaymentsPage() {
           <div>
             <CardTitle>All Transactions</CardTitle>
             <CardDescription>
-              {isLoading ? "Loading…" : `${filtered.length} payment${filtered.length !== 1 ? "s" : ""}`}
+              {loading ? "Loading…" : `${charges.length} payment${charges.length !== 1 ? "s" : ""}`}
             </CardDescription>
           </div>
 
@@ -169,22 +163,22 @@ export function PaymentsPage() {
 
         {/* Rows */}
         <CardContent className="space-y-3">
-          {isLoading ? (
+          {loading ? (
             Array.from({ length: PAGE_SIZE }).map((_, i) => <PaymentRowSkeleton key={i} />)
-          ) : filtered.length === 0 ? (
+          ) : charges.length === 0 ? (
             <EmptyState hasFilters={hasFilters} />
           ) : (
             <div className="space-y-3">
-              {visible.map((charge) => <PaymentRow key={charge.id} charge={charge} />)}
+              {charges.map((charge) => <PaymentRow key={charge.id} charge={charge} />)}
             </div>
           )}
         </CardContent>
 
         {/* Footer — count + load more */}
-        {!isLoading && filtered.length > 0 && (
+        {!loading && charges.length > 0 && (
           <CardFooter className="flex items-center justify-between border-t pt-4">
             <p className="text-xs text-muted-foreground">
-              Showing {visible.length} of {filtered.length}
+              Showing {charges.length} payment{charges.length !== 1 ? "s" : ""}
             </p>
             {hasMore && (
               <Button

@@ -27,9 +27,11 @@ export default defineConfig(({ mode }) => {
         // The proxy forwards to the real endpoint and injects the API key server-side.
         // The key never reaches the browser bundle.
         "/api/graphql": {
-          target: env.VITE_GRAPHQL_ENDPOINT,
+          // VITE_GRAPHQL_ENDPOINT is the full URL (including /api/graphql path).
+          // Use only the origin as the proxy target — the /api/graphql path is
+          // already correct and needs no rewrite.
+          target: new URL(env.VITE_GRAPHQL_ENDPOINT).origin,
           changeOrigin: true,
-          rewrite: (p) => p.replace(/^\/api\/graphql/, ""),
           headers: {
             authorization: env.API_KEY,
           },

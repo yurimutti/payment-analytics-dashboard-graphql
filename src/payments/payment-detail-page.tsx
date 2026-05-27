@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { useParams, Link } from "@tanstack/react-router";
+import { useQuery } from "@/shared/lib/graphql";
 import {
   ArrowLeft,
   CreditCard,
@@ -24,7 +24,8 @@ import {
 import { Separator } from "@/shared/ui/separator";
 import { formatCurrency } from "@/shared/lib/currency";
 import { formatUnixDate, timeAgo } from "@/shared/lib/date";
-import { MOCK_CHARGES } from "./payments-mock";
+import { CHARGE_QUERY } from "./payments.graphql";
+import type { ChargeResponse } from "./payments.graphql";
 import type { Charge, ChargeStatus } from "./payment-types";
 
 // ─── Status icon ──────────────────────────────────────────────────────────────
@@ -112,25 +113,16 @@ function NotFound({ id }: { id: string }) {
 export function PaymentDetailPage() {
   const { id } = useParams({ from: "/payments/$id" });
 
-  const [charge, setCharge]   = useState<Charge | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [notFound, setNotFound]   = useState(false);
+  const { data, loading, error } = useQuery<ChargeResponse>(CHARGE_QUERY, {
+    variables: { id },
+    fetchPolicy: "cache-and-network",
+  });
 
-  useEffect(() => {
-    setIsLoading(true);
-    setNotFound(false);
-    // Simulate async fetch — replace with useQuery(CHARGE_QUERY, { variables: { id } })
-    const timer = setTimeout(() => {
-      const found = MOCK_CHARGES.find((c) => c.id === id) ?? null;
-      setCharge(found);
-      setNotFound(!found);
-      setIsLoading(false);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [id]);
+  const charge   = data?.charge ?? null;
+  const notFound = !loading && (charge === null || !!error);
 
-  if (isLoading) return <DetailSkeleton />;
-  if (notFound)  return <NotFound id={id} />;
+  if (loading)  return <DetailSkeleton />;
+  if (notFound) return <NotFound id={id} />;
 
   const c = charge!;
   const customerInitials = c.customer?.name
