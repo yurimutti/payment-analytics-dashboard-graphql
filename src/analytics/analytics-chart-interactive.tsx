@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/shared/ui/select";
 import { Button } from "@/shared/ui/button";
-import { Skeleton } from "@/shared/ui/skeleton";
+import { Skeleton } from "boneyard-js/react";
 import type { KPIDataPoint, DateRangeOption } from "./analytics-types";
 
 const chartConfig = {
@@ -74,6 +74,7 @@ export function AnalyticsChartInteractive({
   ];
 
   return (
+    <Skeleton name="analytics-chart" loading={isLoading} animate="pulse">
     <Card className="cursor-pointer">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div>
@@ -104,74 +105,71 @@ export function AnalyticsChartInteractive({
 
       <CardContent className="p-0 pt-6">
         <div className="px-6 pb-6">
-          {isLoading ? (
-            <Skeleton className="h-[350px] w-full rounded-lg" />
-          ) : (
-            <ChartContainer config={chartConfig} className="h-[350px] w-full">
-              <AreaChart data={rows} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--color-amount)" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="var(--color-amount)" stopOpacity={0.05} />
-                  </linearGradient>
-                  <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--color-count)" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="var(--color-count)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
+          <ChartContainer config={chartConfig} className="h-[350px] w-full">
+            <AreaChart data={rows} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor="var(--color-amount)" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="var(--color-amount)" stopOpacity={0.05} />
+                </linearGradient>
+                <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor="var(--color-count)" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="var(--color-count)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
 
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
 
-                <XAxis
-                  dataKey="date"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(v: string) =>
-                    new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })
-                  }
-                />
+              <XAxis
+                dataKey="date"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12 }}
+                tickFormatter={(v: string) =>
+                  new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                }
+              />
 
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(v: number) =>
-                    v >= 1000 ? `€${(v / 1000).toFixed(0)}k` : `€${v}`
-                  }
-                />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12 }}
+                tickFormatter={(v: number) =>
+                  v >= 1000 ? `€${(v / 1000).toFixed(0)}k` : `€${v}`
+                }
+              />
 
-                <ChartTooltip
-                  content={
-                    <ChartTooltipContent
-                      labelFormatter={(value: string) => formatChartDate(value)}
-                    />
-                  }
-                />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(value: string) => formatChartDate(value)}
+                  />
+                }
+              />
 
-                {/* Dashed secondary: transaction count (scaled for visual comparison) */}
-                <Area
-                  type="monotone"
-                  dataKey="count"
-                  stroke="var(--color-count)"
-                  fill="url(#colorCount)"
-                  strokeDasharray="5 5"
-                  strokeWidth={1}
-                />
+              {/* Dashed secondary: transaction count */}
+              <Area
+                type="monotone"
+                dataKey="count"
+                stroke="var(--color-count)"
+                fill="url(#colorCount)"
+                strokeDasharray="5 5"
+                strokeWidth={1}
+              />
 
-                {/* Main area: payment volume */}
-                <Area
-                  type="monotone"
-                  dataKey="amount"
-                  stroke="var(--color-amount)"
-                  fill="url(#colorAmount)"
-                  strokeWidth={1.5}
-                />
-              </AreaChart>
-            </ChartContainer>
-          )}
+              {/* Main area: payment volume */}
+              <Area
+                type="monotone"
+                dataKey="amount"
+                stroke="var(--color-amount)"
+                fill="url(#colorAmount)"
+                strokeWidth={1.5}
+              />
+            </AreaChart>
+          </ChartContainer>
         </div>
       </CardContent>
     </Card>
+    </Skeleton>
   );
 }

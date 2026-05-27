@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
-import { Skeleton } from "@/shared/ui/skeleton";
+import { Skeleton } from "boneyard-js/react";
 import { PaymentStatusBadge } from "./payment-status-badge";
 import {
   Card,
@@ -63,58 +63,6 @@ function Row({
   );
 }
 
-// ─── Loading skeleton ─────────────────────────────────────────────────────────
-
-function DetailSkeleton() {
-  return (
-    <div className="flex-1 space-y-6 px-6 pt-6">
-      <Skeleton className="h-4 w-28" />
-
-      {/* Hero */}
-      <div className="flex items-start justify-between">
-        <div className="space-y-2">
-          <Skeleton className="h-10 w-44" />
-          <Skeleton className="h-4 w-32" />
-        </div>
-        <Skeleton className="h-6 w-24 rounded-full" />
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <Card key={i}>
-              <CardHeader><Skeleton className="h-4 w-32" /></CardHeader>
-              <CardContent className="space-y-3">
-                {Array.from({ length: 3 }).map((_, j) => (
-                  <div key={j} className="flex justify-between py-1">
-                    <Skeleton className="h-3 w-24" />
-                    <Skeleton className="h-3 w-36" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <div className="space-y-4">
-          {[1, 2].map((i) => (
-            <Card key={i}>
-              <CardHeader><Skeleton className="h-4 w-28" /></CardHeader>
-              <CardContent className="space-y-3">
-                {Array.from({ length: 3 }).map((_, j) => (
-                  <div key={j} className="flex justify-between py-1">
-                    <Skeleton className="h-3 w-20" />
-                    <Skeleton className="h-3 w-28" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Not found ────────────────────────────────────────────────────────────────
 
 function NotFound({ id }: { id: string }) {
@@ -154,14 +102,14 @@ export function PaymentDetailPage() {
     return () => clearTimeout(timer);
   }, [id]);
 
-  if (isLoading) return <DetailSkeleton />;
-  if (notFound || !charge) return <NotFound id={id} />;
+  if (notFound) return <NotFound id={id} />;
 
-  const customerInitials = charge.customer?.name
+  const customerInitials = charge?.customer?.name
     ? charge.customer.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
     : "?";
 
   return (
+    <Skeleton name="payment-detail" loading={isLoading} animate="pulse">
     <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
 
       {/* Back */}
@@ -174,6 +122,7 @@ export function PaymentDetailPage() {
       </Link>
 
       {/* Hero — amount + status */}
+      {charge && (
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <StatusIcon status={charge.status} />
@@ -196,11 +145,12 @@ export function PaymentDetailPage() {
           </Badge>
         </div>
       </div>
+      )}
 
-      <Separator />
+      {charge && <Separator />}
 
       {/* Two-column grid */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      {charge && <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
 
         {/* ── Left column ────────────────────────────────────── */}
         <div className="space-y-4">
@@ -336,7 +286,8 @@ export function PaymentDetailPage() {
           )}
 
         </div>
-      </div>
+      </div>}
     </div>
+    </Skeleton>
   );
 }
