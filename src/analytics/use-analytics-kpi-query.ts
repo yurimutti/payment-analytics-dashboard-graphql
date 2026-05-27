@@ -14,7 +14,7 @@ function intervalFor(range: DateRangeOption): ChartInterval {
   return "day";
 }
 
-const ANALYTICS_KPI_QUERY = graphql(`
+export const ANALYTICS_KPI_QUERY = graphql(`
   query AnalyticsKpi($start: Int, $end: Int, $currency: Currencies, $interval: Interval) {
     chargesDateRangeKPI(start: $start, end: $end, currency: $currency, interval: $interval) {
       currency

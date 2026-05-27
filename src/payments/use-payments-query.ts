@@ -3,7 +3,7 @@ import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
 import type { ChargeStatus } from "@/shared/lib/graphql/gql/graphql";
 
-const CHARGES_QUERY = graphql(`
+export const CHARGES_QUERY = graphql(`
   query Charges(
     $search: String
     $filter: SearchableChargeFilterInput

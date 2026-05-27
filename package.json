@@ -14,7 +14,10 @@
     "format": "biome format --write src",
     "check": "biome check src",
     "check:fix": "biome check --write src",
-    "check:fix-unsafe": "biome check --write --unsafe src"
+    "check:fix-unsafe": "biome check --write --unsafe src",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@apollo/client": "^3.13.4",
