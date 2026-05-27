@@ -14,9 +14,17 @@ export interface KPITotal {
 }
 
 export interface KPIDataPoint {
-  date: number; // Unix timestamp (seconds)
-  amount: number; // cents
-  count: number;
+  timestamp: number;       // Unix timestamp (seconds)
+  succeededAmount: number;
+  succeededCount: number;
+  capturedAmount: number;
+  capturedCount: number;
+  failedAmount: number;
+  failedCount: number;
+  canceledAmount: number;
+  canceledCount: number;
+  refundedAmount: number;
+  refundedCount: number;
 }
 
 export interface AnalyticsData {

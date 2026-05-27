@@ -1,8 +1,35 @@
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
-import { useQuery } from "@/shared/lib/graphql";
-import { CHARGES_QUERY } from "./payments.graphql";
-import type { ChargesResponse } from "./payments.graphql";
+import { useQuery } from "@/shared/lib/apollo";
+import { graphql } from "@/shared/lib/graphql";
+
+const CHARGES_QUERY = graphql(`
+  query Charges(
+    $search: String
+    $filter: SearchableChargeFilterInput
+    $size: Int
+    $from: Int
+  ) {
+    charges(search: $search, filter: $filter, size: $size, from: $from) {
+      items {
+        id
+        amount
+        currency
+        status
+        createdAt
+        updatedAt
+        orderId
+        livemode
+        customer { name email phone }
+        paymentMethod {
+          method
+          card { brand last4 expiration }
+        }
+      }
+      total
+    }
+  }
+`);
 import { PaymentRow } from "./payment-row";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
@@ -96,18 +123,19 @@ export function PaymentsPage() {
 
   useEffect(() => { setPage(1); }, [debouncedSearch, status]);
 
-  const { data, loading, error } = useQuery<ChargesResponse>(CHARGES_QUERY, {
+  const { data, loading, error } = useQuery(CHARGES_QUERY, {
     variables: {
       search: debouncedSearch || undefined,
-      status: status !== "ALL" ? status : undefined,
-      limit: PAGE_SIZE * page,
-      offset: 0,
+      filter: status !== "ALL" ? { status: { eq: status } } : undefined,
+      size: PAGE_SIZE * page,
+      from: 0,
     },
     fetchPolicy: "cache-and-network",
   });
 
-  const charges    = data?.charges ?? [];
-  const hasMore    = charges.length === PAGE_SIZE * page;
+  const charges    = data?.charges.items ?? [];
+  const total      = data?.charges.total  ?? 0;
+  const hasMore    = charges.length < total;
   const hasFilters = debouncedSearch !== "" || status !== "ALL";
 
   return (

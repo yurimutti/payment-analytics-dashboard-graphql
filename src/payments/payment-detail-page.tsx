@@ -1,5 +1,6 @@
 import { useParams, Link } from "@tanstack/react-router";
-import { useQuery } from "@/shared/lib/graphql";
+import { useQuery } from "@/shared/lib/apollo";
+import { graphql } from "@/shared/lib/graphql";
 import {
   ArrowLeft,
   CreditCard,
@@ -24,9 +25,36 @@ import {
 import { Separator } from "@/shared/ui/separator";
 import { formatCurrency } from "@/shared/lib/currency";
 import { formatUnixDate, timeAgo } from "@/shared/lib/date";
-import { CHARGE_QUERY } from "./payments.graphql";
-import type { ChargeResponse } from "./payments.graphql";
-import type { Charge, ChargeStatus } from "./payment-types";
+import type { ResultOf } from "@graphql-typed-document-node/core";
+
+const CHARGE_QUERY = graphql(`
+  query Charge($id: ID!) {
+    charge(id: $id) {
+      id
+      amount
+      currency
+      status
+      createdAt
+      updatedAt
+      orderId
+      sequenceId
+      descriptor
+      description
+      livemode
+      statusCode
+      statusMessage
+      customer { name email phone }
+      paymentMethod {
+        method
+        card { brand last4 expiration }
+      }
+      metadata { key value }
+    }
+  }
+`);
+
+type Charge = NonNullable<ResultOf<typeof CHARGE_QUERY>["charge"]>;
+type ChargeStatus = Charge["status"];
 
 // ─── Status icon ──────────────────────────────────────────────────────────────
 
@@ -113,7 +141,7 @@ function NotFound({ id }: { id: string }) {
 export function PaymentDetailPage() {
   const { id } = useParams({ from: "/payments/$id" });
 
-  const { data, loading, error } = useQuery<ChargeResponse>(CHARGE_QUERY, {
+  const { data, loading, error } = useQuery(CHARGE_QUERY, {
     variables: { id },
     fetchPolicy: "cache-and-network",
   });
@@ -147,12 +175,12 @@ export function PaymentDetailPage() {
           <StatusIcon status={c.status} />
           <div>
             <p className="text-3xl font-bold tabular-nums">
-              {formatCurrency(c.amount, c.currency)}
+              {formatCurrency(c.amount ?? 0, c.currency)}
             </p>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {formatUnixDate(c.createdAt, "MMM d, yyyy · HH:mm")}
+              {formatUnixDate(c.createdAt ?? 0, "MMM d, yyyy · HH:mm")}
               {" · "}
-              {timeAgo(c.createdAt)}
+              {timeAgo(c.createdAt ?? 0)}
             </p>
           </div>
         </div>
@@ -189,15 +217,21 @@ export function PaymentDetailPage() {
                 <Separator className="mb-3" />
                 {c.paymentMethod.card ? (
                   <>
-                    <Row label="Brand"   value={c.paymentMethod.card.brand.toUpperCase()} />
-                    <Row label="Number"  value={`•••• •••• •••• ${c.paymentMethod.card.last4}`} mono />
-                    <Row
-                      label="Expires"
-                      value={`${String(c.paymentMethod.card.expMonth).padStart(2, "0")} / ${c.paymentMethod.card.expYear}`}
-                    />
+                    {c.paymentMethod.card.brand && (
+                      <Row label="Brand"  value={c.paymentMethod.card.brand.toUpperCase()} />
+                    )}
+                    {c.paymentMethod.card.last4 && (
+                      <Row label="Number" value={`•••• •••• •••• ${c.paymentMethod.card.last4}`} mono />
+                    )}
+                    {c.paymentMethod.card.expiration && (
+                      <Row
+                        label="Expires"
+                        value={formatUnixDate(c.paymentMethod.card.expiration, "MM / yyyy")}
+                      />
+                    )}
                   </>
                 ) : (
-                  <Row label="Method" value={c.paymentMethod.method} />
+                  <Row label="Method" value={c.paymentMethod.method ?? "—"} />
                 )}
               </CardContent>
             </Card>
@@ -273,11 +307,11 @@ export function PaymentDetailPage() {
               {c.statusCode && <Row label="Status code" value={c.statusCode} mono />}
               <Row
                 label="Created"
-                value={formatUnixDate(c.createdAt, "MMM d, yyyy HH:mm:ss")}
+                value={formatUnixDate(c.createdAt ?? 0, "MMM d, yyyy HH:mm:ss")}
               />
               <Row
                 label="Updated"
-                value={formatUnixDate(c.updatedAt, "MMM d, yyyy HH:mm:ss")}
+                value={formatUnixDate(c.updatedAt ?? 0, "MMM d, yyyy HH:mm:ss")}
               />
             </CardContent>
           </Card>
@@ -295,7 +329,7 @@ export function PaymentDetailPage() {
               <CardContent>
                 <Separator className="mb-3" />
                 {c.metadata.map(({ key, value }) => (
-                  <Row key={key} label={key} value={value} mono />
+                  <Row key={key} label={key} value={value ?? ""} mono />
                 ))}
               </CardContent>
             </Card>

@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "codegen:watch": "graphql-codegen --config codegen.ts --watch"
   },
   "dependencies": {
     "@apollo/client": "^3.13.4",
@@ -37,6 +39,12 @@
     "tailwind-merge": "^3.3.0"
   },
   "devDependencies": {
+    "@0no-co/graphqlsp": "^1.15.4",
+    "@graphql-codegen/cli": "^7.1.0",
+    "@graphql-codegen/client-preset": "^6.0.1",
+    "@graphql-codegen/near-operation-file-preset": "^5.2.1",
+    "@graphql-codegen/schema-ast": "^6.0.1",
+    "@graphql-codegen/typescript-operations": "^6.0.3",
     "@tailwindcss/vite": "^4.1.8",
     "@tanstack/router-vite-plugin": "^1.120.0",
     "@types/react": "^19.1.6",

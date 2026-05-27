@@ -69,9 +69,9 @@ export function PaymentRow({ charge }: PaymentRowProps) {
 
           <div className="text-right">
             <p className="text-sm font-medium tabular-nums">
-              {formatCurrency(charge.amount, charge.currency)}
+              {formatCurrency(charge.amount ?? 0, charge.currency)}
             </p>
-            <p className="text-xs text-muted-foreground">{timeAgo(charge.createdAt)}</p>
+            <p className="text-xs text-muted-foreground">{timeAgo(charge.createdAt ?? 0)}</p>
           </div>
 
           <DropdownMenu>

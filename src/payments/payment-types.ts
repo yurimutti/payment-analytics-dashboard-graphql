@@ -11,36 +11,35 @@ export type ChargeStatus =
   | "PAID_OUT";
 
 export interface PaymentMethod {
-  method: string;
+  method: string | null;
   card?: {
-    brand: string;
-    last4: string;
-    expMonth: number;
-    expYear: number;
-  };
+    brand: string | null;
+    last4: string | null;
+    expiration: number | null;
+  } | null;
 }
 
 export interface Customer {
-  name?: string;
-  email?: string;
-  phone?: string;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
 }
 
 export interface Charge {
   id: string;
-  amount: number;         // cents
+  amount: number | null;
   currency: string;
   status: ChargeStatus;
-  createdAt: number;      // Unix timestamp (seconds)
-  updatedAt: number;
-  orderId?: string;
-  sequenceId?: string;
-  descriptor?: string;
-  description?: string;
-  livemode: boolean;
-  customer?: Customer;
-  paymentMethod?: PaymentMethod;
-  statusCode?: string;
-  statusMessage?: string;
-  metadata?: Array<{ key: string; value: string }>;
+  createdAt: number | null;
+  updatedAt: number | null;
+  orderId?: string | null;
+  sequenceId?: string | null;
+  descriptor?: string | null;
+  description?: string | null;
+  livemode: boolean | null;
+  customer?: Customer | null;
+  paymentMethod?: PaymentMethod | null;
+  statusCode?: string | null;
+  statusMessage?: string | null;
+  metadata?: Array<{ key: string; value: string | null }> | null;
 }

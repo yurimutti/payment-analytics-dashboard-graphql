@@ -18,11 +18,30 @@ import {
 import { Skeleton } from "@/shared/ui/skeleton";
 import { formatCurrency } from "@/shared/lib/currency";
 import { timeAgo } from "@/shared/lib/date";
-import { useQuery } from "@/shared/lib/graphql";
-import type { Charge } from "@/payments/payment-types";
-import { CHARGES_QUERY } from "@/payments/payments.graphql";
-import type { ChargesResponse } from "@/payments/payments.graphql";
+import { useQuery } from "@/shared/lib/apollo";
+import { graphql } from "@/shared/lib/graphql";
+import type { ResultOf } from "@graphql-typed-document-node/core";
 import { PaymentStatusBadge } from "@/payments/payment-status-badge";
+
+const RECENT_CHARGES_QUERY = graphql(`
+  query RecentCharges {
+    charges(size: 5) {
+      items {
+        id
+        amount
+        currency
+        status
+        createdAt
+        orderId
+        customer { name email }
+        paymentMethod { method }
+      }
+      total
+    }
+  }
+`);
+
+type Charge = ResultOf<typeof RECENT_CHARGES_QUERY>["charges"]["items"][number];
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -78,12 +97,11 @@ interface RecentTransactionsProps {
 }
 
 export function RecentTransactions({ isLoading = false }: RecentTransactionsProps) {
-  const { data, loading: queryLoading } = useQuery<ChargesResponse>(CHARGES_QUERY, {
-    variables: { limit: 5 },
+  const { data, loading: queryLoading } = useQuery(RECENT_CHARGES_QUERY, {
     fetchPolicy: "cache-and-network",
   });
 
-  const charges = data?.charges ?? [];
+  const charges = data?.charges.items ?? [];
   const showSkeleton = queryLoading || isLoading;
 
   return (
@@ -127,9 +145,9 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
 
                   <div className="text-right">
                     <p className="text-sm font-medium">
-                      {formatCurrency(charge.amount, charge.currency)}
+                      {formatCurrency(charge.amount ?? 0, charge.currency)}
                     </p>
-                    <p className="text-xs text-muted-foreground">{timeAgo(charge.createdAt)}</p>
+                    <p className="text-xs text-muted-foreground">{timeAgo(charge.createdAt ?? 0)}</p>
                   </div>
 
                   <DropdownMenu>

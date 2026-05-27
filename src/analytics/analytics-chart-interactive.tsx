@@ -40,9 +40,9 @@ const chartConfig = {
 
 function toChartRows(data: KPIDataPoint[]) {
   return data.map((d) => ({
-    date: unixToISODate(d.date),
-    amount: centsToPreciseFloat(d.amount),
-    count: d.count,
+    date:   unixToISODate(d.timestamp),
+    amount: centsToPreciseFloat(d.succeededAmount + d.capturedAmount),
+    count:  d.succeededCount + d.capturedCount,
   }));
 }
 
