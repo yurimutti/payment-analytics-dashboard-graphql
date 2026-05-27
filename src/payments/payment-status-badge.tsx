@@ -1,9 +1,6 @@
 import type { ChargeStatus } from "./payment-types";
 import { cn } from "@/shared/lib/utils";
 
-// ─── Status config ────────────────────────────────────────────────────────────
-// Full class strings so Tailwind v4 picks them up via static analysis.
-
 const STATUS_CONFIG: Record<ChargeStatus, { label: string; className: string }> = {
   SUCCEEDED:          { label: "Completed",     className: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
   PAID_OUT:           { label: "Paid Out",       className: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
@@ -17,7 +14,6 @@ const STATUS_CONFIG: Record<ChargeStatus, { label: string; className: string }> 
   EXPIRED:            { label: "Expired",        className: "bg-red-500/15     text-red-400     border-red-500/30"     },
 };
 
-// Helper for cases that only need the label string
 export function statusLabel(status: ChargeStatus): string {
   return STATUS_CONFIG[status]?.label ?? status;
 }

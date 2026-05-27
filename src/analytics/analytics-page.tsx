@@ -6,6 +6,7 @@ import { AnalyticsChartInteractive } from "./analytics-chart-interactive";
 import { RecentTransactions } from "./recent-transactions";
 import { daysAgo } from "@/shared/lib/date";
 import type { DateRangeOption } from "./analytics-types";
+import { DEFAULT_RANGE_DAYS } from "./constants";
 
 type ChartInterval = "day" | "week" | "month";
 
@@ -53,7 +54,7 @@ const ANALYTICS_KPI_QUERY = graphql(`
 `);
 
 export function AnalyticsPage() {
-  const [range, setRange] = useState<DateRangeOption>(365);
+  const [range, setRange] = useState<DateRangeOption>(DEFAULT_RANGE_DAYS);
 
   const { start, end, interval } = useMemo(() => ({
     start:    Math.floor(daysAgo(range).getTime() / 1000),

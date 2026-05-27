@@ -22,10 +22,12 @@ import { useQuery } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
 import type { ResultOf } from "@graphql-typed-document-node/core";
 import { PaymentStatusBadge } from "@/payments/payment-status-badge";
+import { RECENT_TRANSACTIONS_SIZE, INITIALS_LENGTH } from "@/payments/constants";
+import { TransactionSkeleton } from "./transaction.skeleton";
 
 const RECENT_CHARGES_QUERY = graphql(`
-  query RecentCharges {
-    charges(size: 5) {
+  query RecentCharges($size: Int) {
+    charges(size: $size) {
       items {
         id
         amount
@@ -43,30 +45,6 @@ const RECENT_CHARGES_QUERY = graphql(`
 
 type Charge = ResultOf<typeof RECENT_CHARGES_QUERY>["charges"]["items"][number];
 
-function TransactionSkeleton() {
-  return (
-    <div className="flex items-center p-3 rounded-lg border gap-2">
-      <Skeleton className="h-8 w-8 rounded-full shrink-0" />
-      <div className="flex flex-1 items-center justify-between gap-2">
-        <div className="space-y-1.5">
-          <Skeleton className="h-3.5 w-28" />
-          <Skeleton className="h-3 w-36" />
-        </div>
-        <div className="flex items-center gap-3">
-          <Skeleton className="h-5 w-20 rounded-md" />
-          <div className="space-y-1.5 text-right">
-            <Skeleton className="h-3.5 w-16" />
-            <Skeleton className="h-3 w-12" />
-          </div>
-          <Skeleton className="h-8 w-8 rounded-md" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(charge: Charge): string {
   const name = charge.customer?.name;
   if (name) {
@@ -74,10 +52,10 @@ function getInitials(charge: Charge): string {
       .split(" ")
       .map((w) => w[0])
       .join("")
-      .slice(0, 2)
+      .slice(0, INITIALS_LENGTH)
       .toUpperCase();
   }
-  return charge.id.slice(0, 2).toUpperCase();
+  return charge.id.slice(0, INITIALS_LENGTH).toUpperCase();
 }
 
 function getDisplayName(charge: Charge): string {
@@ -93,6 +71,7 @@ interface RecentTransactionsProps {
 
 export function RecentTransactions({ isLoading = false }: RecentTransactionsProps) {
   const { data, loading: queryLoading } = useQuery(RECENT_CHARGES_QUERY, {
+    variables: { size: RECENT_TRANSACTIONS_SIZE },
     fetchPolicy: "cache-and-network",
   });
 
@@ -110,7 +89,7 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
           <Skeleton className="h-8 w-20 rounded-md" />
         </CardHeader>
         <CardContent className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => <TransactionSkeleton key={i} />)}
+          {Array.from({ length: RECENT_TRANSACTIONS_SIZE }).map((_, i) => <TransactionSkeleton key={i} />)}
         </CardContent>
       </Card>
     );
@@ -169,6 +148,7 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
                         variant="ghost"
                         size="sm"
                         className="h-8 w-8 p-0 cursor-pointer"
+                        aria-label="Open payment actions menu"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <MoreHorizontal className="h-4 w-4" />

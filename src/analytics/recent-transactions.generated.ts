@@ -74,7 +74,9 @@ export type PaymentMethods =
   | 'srtp'
   | 'trustly';
 
-export type RecentChargesQueryVariables = Exact<{ [key: string]: never; }>;
+export type RecentChargesQueryVariables = Exact<{
+  size?: number | null | undefined;
+}>;
 
 
 export type RecentChargesQuery = { charges: { total: number, items: Array<{ id: string, amount: number | null, currency: string, status: Types.ChargeStatus, createdAt: unknown, orderId: string | null, customer: { name: string | null, email: string | null } | null, paymentMethod: { method: Types.PaymentMethods | null } | null }> } };

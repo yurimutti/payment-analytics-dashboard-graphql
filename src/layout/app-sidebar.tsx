@@ -56,7 +56,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const currentPath = location.pathname;
 
   return (
-    <Sidebar collapsible="none" className="border-r border-sidebar-border" {...props}>
+    <Sidebar collapsible="offcanvas" className="border-r border-sidebar-border" {...props}>
 
       <SidebarHeader className="px-4 py-5">
         <Link to="/" className="flex items-center gap-3">

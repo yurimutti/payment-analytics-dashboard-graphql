@@ -94,7 +94,11 @@ function ChartHeader({
             ))}
           </SelectContent>
         </Select>
-        <Button variant="outline" className="cursor-pointer hidden sm:flex">
+        <Button
+          variant="outline"
+          className="cursor-pointer hidden sm:flex"
+          aria-label="Export payment data"
+        >
           Export
         </Button>
       </div>

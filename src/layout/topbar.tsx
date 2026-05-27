@@ -1,4 +1,5 @@
 import { useRouterState } from "@tanstack/react-router";
+import { SidebarTrigger } from "@/shared/ui/sidebar";
 
 interface RouteConfig {
   title: string;
@@ -14,18 +15,20 @@ export function Topbar() {
   const { location } = useRouterState();
   const pathname = location.pathname;
 
-  // Match /payments/$id → show "Payments" section header
   const key = pathname === "/" ? "/" : "/" + pathname.split("/").filter(Boolean)[0];
   const config = ROUTE_CONFIG[key];
 
   if (!config) return null;
 
   return (
-    <header className="shrink-0 flex flex-col justify-center px-4 py-5 min-h-19">
-      <h1 className="text-base font-bold tracking-tight text-foreground leading-tight">
-        {config.title}
-      </h1>
-      <p className="text-xs text-muted-foreground leading-tight">{config.subtitle}</p>
+    <header className="shrink-0 flex items-center gap-3 px-4 py-5 min-h-19">
+      <SidebarTrigger className="md:hidden" />
+      <div className="flex flex-col justify-center">
+        <h1 className="text-base font-bold tracking-tight text-foreground leading-tight">
+          {config.title}
+        </h1>
+        <p className="text-xs text-muted-foreground leading-tight">{config.subtitle}</p>
+      </div>
     </header>
   );
 }

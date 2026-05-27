@@ -31,6 +31,7 @@ const CHARGES_QUERY = graphql(`
   }
 `);
 import { PaymentRow } from "./payment-row";
+import { PaymentRowSkeleton } from "./payment-row.skeleton";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
@@ -51,8 +52,7 @@ import {
   SelectValue,
 } from "@/shared/ui/select";
 import type { ChargeStatus } from "./payment-types";
-
-const PAGE_SIZE = 10;
+import { PAGE_SIZE, SEARCH_DEBOUNCE_MS } from "./constants";
 
 const ALL_STATUSES: { value: ChargeStatus | "ALL"; label: string }[] = [
   { value: "ALL",                label: "All statuses"   },
@@ -67,25 +67,6 @@ const ALL_STATUSES: { value: ChargeStatus | "ALL"; label: string }[] = [
   { value: "EXPIRED",           label: "Expired"         },
   { value: "PAID_OUT",          label: "Paid out"        },
 ];
-
-function PaymentRowSkeleton() {
-  return (
-    <div className="flex items-center justify-between rounded-lg border p-4 gap-4">
-      <div className="flex items-center gap-3">
-        <Skeleton className="h-9 w-9 rounded-full shrink-0" />
-        <div className="space-y-1.5">
-          <Skeleton className="h-3.5 w-32" />
-          <Skeleton className="h-3 w-24" />
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <Skeleton className="h-5 w-20 rounded-md" />
-        <Skeleton className="h-3.5 w-16" />
-        <Skeleton className="h-3.5 w-20" />
-      </div>
-    </div>
-  );
-}
 
 function EmptyState({
   hasFilters,
@@ -139,12 +120,12 @@ function FilterBar({ search, status, hasFilters, onSearchChange, onStatusChange,
           placeholder="Search ID, order, customer…"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="h-8 pl-8 w-56 text-xs"
+          className="h-8 pl-8 w-full sm:w-56 text-xs"
         />
       </div>
 
       <Select value={status} onValueChange={(v) => onStatusChange(v as ChargeStatus | "ALL")}>
-        <SelectTrigger className="h-8 w-36 text-xs cursor-pointer">
+        <SelectTrigger className="h-8 w-full sm:w-36 text-xs cursor-pointer">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -177,7 +158,7 @@ export function PaymentsPage() {
 
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search), 400);
+    const t = setTimeout(() => setDebouncedSearch(search), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(t);
   }, [search]);
 

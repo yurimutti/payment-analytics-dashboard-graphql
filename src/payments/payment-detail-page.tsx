@@ -13,8 +13,9 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
-import { Skeleton } from "@/shared/ui/skeleton";
 import { PaymentStatusBadge } from "./payment-status-badge";
+import { PaymentDetailSkeleton } from "./payment-detail.skeleton";
+import { INITIALS_LENGTH } from "./constants";
 import {
   Card,
   CardContent,
@@ -56,8 +57,6 @@ const CHARGE_QUERY = graphql(`
 type Charge = NonNullable<ResultOf<typeof CHARGE_QUERY>["charge"]>;
 type ChargeStatus = Charge["status"];
 
-// ─── Status icon ──────────────────────────────────────────────────────────────
-
 function StatusIcon({ status }: { status: ChargeStatus }) {
   if (status === "SUCCEEDED" || status === "PAID_OUT")
     return <CheckCircle2 className="text-emerald-500" size={18} />;
@@ -65,8 +64,6 @@ function StatusIcon({ status }: { status: ChargeStatus }) {
     return <AlertCircle className="text-red-400" size={18} />;
   return <Clock className="text-muted-foreground" size={18} />;
 }
-
-// ─── Row helper ───────────────────────────────────────────────────────────────
 
 function Row({
   label,
@@ -92,35 +89,6 @@ function Row({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────────────
-
-function DetailSkeleton() {
-  return (
-    <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
-      <Skeleton className="h-4 w-20" />
-      <div className="flex items-center gap-3">
-        <Skeleton className="h-5 w-5 rounded-full" />
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-40" />
-          <Skeleton className="h-4 w-64" />
-        </div>
-      </div>
-      <Skeleton className="h-px w-full" />
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-4">
-          <Skeleton className="h-36 rounded-lg" />
-          <Skeleton className="h-36 rounded-lg" />
-        </div>
-        <div className="space-y-4">
-          <Skeleton className="h-52 rounded-lg" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Not found ────────────────────────────────────────────────────────────────
-
 function NotFound({ id }: { id: string }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
@@ -136,8 +104,6 @@ function NotFound({ id }: { id: string }) {
   );
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
-
 export function PaymentDetailPage() {
   const { id } = useParams({ from: "/payments/$id" });
 
@@ -149,12 +115,12 @@ export function PaymentDetailPage() {
   const charge   = data?.charge ?? null;
   const notFound = !loading && (charge === null || !!error);
 
-  if (loading)  return <DetailSkeleton />;
+  if (loading)  return <PaymentDetailSkeleton />;
   if (notFound) return <NotFound id={id} />;
 
   const c = charge!;
   const customerInitials = c.customer?.name
-    ? c.customer.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
+    ? c.customer.name.split(" ").map((w) => w[0]).join("").slice(0, INITIALS_LENGTH).toUpperCase()
     : "?";
 
   return (

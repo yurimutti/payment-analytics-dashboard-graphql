@@ -12,15 +12,14 @@ import { formatCurrency } from "@/shared/lib/currency";
 import { timeAgo } from "@/shared/lib/date";
 import type { Charge } from "./payment-types";
 import { PaymentStatusBadge } from "./payment-status-badge";
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+import { INITIALS_LENGTH } from "./constants";
 
 function getInitials(charge: Charge): string {
   const name = charge.customer?.name;
   if (name) {
-    return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+    return name.split(" ").map((w) => w[0]).join("").slice(0, INITIALS_LENGTH).toUpperCase();
   }
-  return charge.id.slice(0, 2).toUpperCase();
+  return charge.id.slice(0, INITIALS_LENGTH).toUpperCase();
 }
 
 function getDisplayName(charge: Charge): string {
@@ -30,8 +29,6 @@ function getDisplayName(charge: Charge): string {
 function getEmail(charge: Charge): string {
   return charge.customer?.email ?? charge.orderId ?? "—";
 }
-
-// ─── Row ──────────────────────────────────────────────────────────────────────
 
 interface PaymentRowProps {
   charge: Charge;
@@ -47,7 +44,6 @@ export function PaymentRow({ charge }: PaymentRowProps) {
       </Avatar>
 
       <div className="flex flex-1 items-center flex-wrap justify-between gap-2">
-        {/* Name + email — clicking navigates to detail */}
         <Link
           to="/payments/$id"
           params={{ id: charge.id }}
@@ -57,7 +53,6 @@ export function PaymentRow({ charge }: PaymentRowProps) {
           <p className="text-xs text-muted-foreground truncate">{getEmail(charge)}</p>
         </Link>
 
-        {/* Right side controls */}
         <div className="flex items-center gap-3 shrink-0">
           {charge.paymentMethod?.method && (
             <span className="hidden sm:block text-xs text-muted-foreground capitalize">
@@ -76,7 +71,12 @@ export function PaymentRow({ charge }: PaymentRowProps) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 cursor-pointer">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 cursor-pointer"
+                aria-label="Open payment actions menu"
+              >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

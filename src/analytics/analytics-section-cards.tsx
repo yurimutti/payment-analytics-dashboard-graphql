@@ -8,31 +8,10 @@ import {
   CardTitle,
 } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
-import { Skeleton } from "@/shared/ui/skeleton";
 import { formatCurrency } from "@/shared/lib/currency";
 import type { AnalyticsData } from "./analytics-types";
-
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-function CardSkeleton() {
-  return (
-    <Card>
-      <CardHeader>
-        <Skeleton className="h-4 w-28" />
-        <Skeleton className="mt-1 h-8 w-36" />
-        <CardAction>
-          <Skeleton className="h-6 w-16 rounded-full" />
-        </CardAction>
-      </CardHeader>
-      <CardFooter className="flex-col items-start gap-1.5 text-sm">
-        <Skeleton className="h-4 w-40" />
-        <Skeleton className="h-3 w-32" />
-      </CardFooter>
-    </Card>
-  );
-}
-
-// ─── Derived metrics ──────────────────────────────────────────────────────────
+import { AnalyticsCardSkeleton } from "./analytics-card.skeleton";
+import { SECTION_CARDS_COUNT } from "./constants";
 
 interface Metric {
   title: string;
@@ -97,8 +76,6 @@ function deriveMetrics(data: AnalyticsData): Metric[] {
   ];
 }
 
-// ─── Section cards ────────────────────────────────────────────────────────────
-
 interface AnalyticsSectionCardsProps {
   data: AnalyticsData | null;
   isLoading: boolean;
@@ -109,7 +86,7 @@ export function AnalyticsSectionCards({ data, isLoading, isError }: AnalyticsSec
   if (isError) {
     return (
       <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {Array.from({ length: SECTION_CARDS_COUNT }).map((_, i) => (
           <Card key={i}>
             <CardHeader>
               <CardDescription>—</CardDescription>
@@ -127,7 +104,7 @@ export function AnalyticsSectionCards({ data, isLoading, isError }: AnalyticsSec
   if (isLoading || !data) {
     return (
       <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)}
+        {Array.from({ length: SECTION_CARDS_COUNT }).map((_, i) => <AnalyticsCardSkeleton key={i} />)}
       </div>
     );
   }
