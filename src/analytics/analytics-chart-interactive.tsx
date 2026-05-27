@@ -58,6 +58,50 @@ interface AnalyticsChartInteractiveProps {
   isLoading: boolean;
 }
 
+const RANGE_OPTIONS: { label: string; value: DateRangeOption }[] = [
+  { label: "Last 12 months", value: 365 },
+  { label: "Last 90 days",   value: 90  },
+  { label: "Last 30 days",   value: 30  },
+  { label: "Last 7 days",    value: 7   },
+];
+
+function ChartHeader({
+  range,
+  onRangeChange,
+}: {
+  range: DateRangeOption;
+  onRangeChange: (v: DateRangeOption) => void;
+}) {
+  return (
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <div>
+        <CardTitle>Payment Volume</CardTitle>
+        <CardDescription>Daily transaction volume for the selected period</CardDescription>
+      </div>
+      <div className="flex items-center gap-2">
+        <Select
+          value={String(range)}
+          onValueChange={(v) => onRangeChange(Number(v) as DateRangeOption)}
+        >
+          <SelectTrigger className="w-36 cursor-pointer">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {RANGE_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={String(o.value)} className="cursor-pointer">
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button variant="outline" className="cursor-pointer hidden sm:flex">
+          Export
+        </Button>
+      </div>
+    </CardHeader>
+  );
+}
+
 export function AnalyticsChartInteractive({
   data,
   range,
@@ -73,51 +117,40 @@ export function AnalyticsChartInteractive({
   const rows = toChartRows(data);
   const hasData = rows.some((r) => r.amount > 0 || r.failed > 0);
 
-  const rangeOptions: { label: string; value: DateRangeOption }[] = [
-    { label: "Last 7 days",  value: 7  },
-    { label: "Last 30 days", value: 30 },
-    { label: "Last 90 days", value: 90 },
-  ];
-
-  return (
-    <Card className="cursor-pointer">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div>
-          <CardTitle>Payment Volume</CardTitle>
-          <CardDescription>Daily transaction volume for the selected period</CardDescription>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select
-            value={String(range)}
-            onValueChange={(v) => onRangeChange(Number(v) as DateRangeOption)}
-          >
-            <SelectTrigger className="w-36 cursor-pointer">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {rangeOptions.map((o) => (
-                <SelectItem key={o.value} value={String(o.value)} className="cursor-pointer">
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="outline" className="cursor-pointer hidden sm:flex">
-            Export
-          </Button>
-        </div>
-      </CardHeader>
-
-      <CardContent className="p-0 pt-6">
-        <div className="px-6 pb-6">
-          {isLoading ? (
+  if (isLoading) {
+    return (
+      <Card className="cursor-pointer">
+        <ChartHeader range={range} onRangeChange={onRangeChange} />
+        <CardContent className="p-0 pt-6">
+          <div className="px-6 pb-6">
             <Skeleton className="h-[350px] w-full rounded-lg" />
-          ) : !hasData ? (
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!hasData) {
+    return (
+      <Card className="cursor-pointer">
+        <ChartHeader range={range} onRangeChange={onRangeChange} />
+        <CardContent className="p-0 pt-6">
+          <div className="px-6 pb-6">
             <div className="flex h-[350px] w-full flex-col items-center justify-center text-center gap-2">
               <p className="text-sm font-medium text-muted-foreground">No transactions in this period</p>
               <p className="text-xs text-muted-foreground">Try a wider date range or check back after new charges arrive</p>
             </div>
-          ) : (
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="cursor-pointer">
+      <ChartHeader range={range} onRangeChange={onRangeChange} />
+      <CardContent className="p-0 pt-6">
+        <div className="px-6 pb-6">
           <ChartContainer config={chartConfig} className="h-[350px] w-full">
             <AreaChart data={rows} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
               <defs>
@@ -181,7 +214,6 @@ export function AnalyticsChartInteractive({
               />
             </AreaChart>
           </ChartContainer>
-          )}
         </div>
       </CardContent>
     </Card>

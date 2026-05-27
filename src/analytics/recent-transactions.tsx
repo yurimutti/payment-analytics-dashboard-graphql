@@ -21,7 +21,7 @@ import { timeAgo } from "@/shared/lib/date";
 import { useQuery } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
 import type { ResultOf } from "@graphql-typed-document-node/core";
-import { PaymentStatusBadge } from "./payment-status-badge";
+import { PaymentStatusBadge } from "@/payments/payment-status-badge";
 
 const RECENT_CHARGES_QUERY = graphql(`
   query RecentCharges {
@@ -99,6 +99,23 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
   const charges = data?.charges.items ?? [];
   const showSkeleton = queryLoading || isLoading;
 
+  if (showSkeleton) {
+    return (
+      <Card className="cursor-pointer">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <div>
+            <CardTitle>Recent Transactions</CardTitle>
+            <CardDescription>Latest customer transactions</CardDescription>
+          </div>
+          <Skeleton className="h-8 w-20 rounded-md" />
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => <TransactionSkeleton key={i} />)}
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="cursor-pointer">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -116,10 +133,7 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {showSkeleton ? (
-          Array.from({ length: 5 }).map((_, i) => <TransactionSkeleton key={i} />)
-        ) : (
-          <div className="space-y-3">
+        <div className="space-y-3">
           {charges.map((charge) => (
             <Link
               key={charge.id}
@@ -172,8 +186,7 @@ export function RecentTransactions({ isLoading = false }: RecentTransactionsProp
               </div>
             </Link>
           ))}
-          </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );

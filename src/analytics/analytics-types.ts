@@ -1,4 +1,4 @@
-export type DateRangeOption = 7 | 30 | 90;
+export type DateRangeOption = 7 | 30 | 90 | 365;
 
 export interface KPITotal {
   succeededAmount: number;

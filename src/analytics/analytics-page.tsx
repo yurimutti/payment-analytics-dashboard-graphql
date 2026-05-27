@@ -3,9 +3,17 @@ import { useQuery } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
 import { AnalyticsSectionCards } from "./analytics-section-cards";
 import { AnalyticsChartInteractive } from "./analytics-chart-interactive";
-import { RecentTransactions } from "@/payments/recent-transactions";
+import { RecentTransactions } from "./recent-transactions";
 import { daysAgo } from "@/shared/lib/date";
 import type { DateRangeOption } from "./analytics-types";
+
+type ChartInterval = "day" | "week" | "month";
+
+function intervalFor(range: DateRangeOption): ChartInterval {
+  if (range >= 365) return "month";
+  if (range >= 90)  return "week";
+  return "day";
+}
 
 const ANALYTICS_KPI_QUERY = graphql(`
   query AnalyticsKpi($start: Int, $end: Int, $currency: Currencies, $interval: Interval) {
@@ -45,15 +53,16 @@ const ANALYTICS_KPI_QUERY = graphql(`
 `);
 
 export function AnalyticsPage() {
-  const [range, setRange] = useState<DateRangeOption>(30);
+  const [range, setRange] = useState<DateRangeOption>(365);
 
-  const { start, end } = useMemo(() => ({
-    start: Math.floor(daysAgo(range).getTime() / 1000),
-    end:   Math.floor(Date.now() / 1000),
+  const { start, end, interval } = useMemo(() => ({
+    start:    Math.floor(daysAgo(range).getTime() / 1000),
+    end:      Math.floor(Date.now() / 1000),
+    interval: intervalFor(range),
   }), [range]);
 
   const { data, loading, error } = useQuery(ANALYTICS_KPI_QUERY, {
-    variables: { start, end, currency: "EUR", interval: "day" },
+    variables: { start, end, currency: "EUR", interval },
     fetchPolicy: "cache-and-network",
   });
 
