@@ -1,35 +1,22 @@
-import type { ResultOf } from "@graphql-typed-document-node/core";
 import { getApolloErrorMessage } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
-import { useChargeQuery } from "./use-payment-detail-query.generated";
+import { type ChargeQuery, useChargeQuery } from "./use-payment-detail-query.generated";
 
-const CHARGE_QUERY = graphql(`
+export const CHARGE_QUERY = graphql(`
   query Charge($id: ID!) {
     charge(id: $id) {
-      id
-      amount
-      currency
-      status
-      createdAt
-      updatedAt
-      orderId
+      ...PaymentFields
       sequenceId
       descriptor
       description
-      livemode
       statusCode
       statusMessage
-      customer { name email phone }
-      paymentMethod {
-        method
-        card { brand last4 expiration }
-      }
       metadata { key value }
     }
   }
 `);
 
-export type ChargeDetail = NonNullable<ResultOf<typeof CHARGE_QUERY>["charge"]>;
+export type ChargeDetail = NonNullable<ChargeQuery["charge"]>;
 
 export function usePaymentDetailQuery(id: string) {
   const query = useChargeQuery({

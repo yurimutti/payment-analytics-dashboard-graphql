@@ -5,6 +5,7 @@ export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' |
 import * as Types from '@/shared/lib/graphql/gql/graphql';
 
 import { gql } from '@apollo/client';
+import { PaymentFieldsFragmentDoc } from './payment-fields.fragment.generated';
 import * as Apollo from '@apollo/client';
 import * as ApolloReactHooks from '@/shared/lib/apollo';
 const defaultOptions = {} as const;
@@ -104,45 +105,25 @@ export type ChargeQueryVariables = Exact<{
 }>;
 
 
-export type ChargeQuery = { charge: { id: string, amount: number | null, currency: string, status: Types.ChargeStatus, createdAt: number | null, updatedAt: number | null, orderId: string | null, sequenceId: string | null, descriptor: string | null, description: string | null, livemode: boolean | null, statusCode: string | null, statusMessage: string | null, customer: { name: string | null, email: string | null, phone: string | null } | null, paymentMethod: { method: Types.PaymentMethods | null, card: { brand: Types.CardBrand | null, last4: string | null, expiration: number | null } | null } | null, metadata: Array<{ key: string, value: string | null }> | null } | null };
+export type ChargeQuery = { charge: { sequenceId: string | null, descriptor: string | null, description: string | null, statusCode: string | null, statusMessage: string | null, id: string, amount: number | null, currency: string, status: Types.ChargeStatus, createdAt: number | null, updatedAt: number | null, orderId: string | null, livemode: boolean | null, metadata: Array<{ key: string, value: string | null }> | null, customer: { name: string | null, email: string | null, phone: string | null } | null, paymentMethod: { method: Types.PaymentMethods | null, card: { brand: Types.CardBrand | null, last4: string | null, expiration: number | null } | null } | null } | null };
 
 
 export const ChargeDocument = gql`
     query Charge($id: ID!) {
   charge(id: $id) {
-    id
-    amount
-    currency
-    status
-    createdAt
-    updatedAt
-    orderId
+    ...PaymentFields
     sequenceId
     descriptor
     description
-    livemode
     statusCode
     statusMessage
-    customer {
-      name
-      email
-      phone
-    }
-    paymentMethod {
-      method
-      card {
-        brand
-        last4
-        expiration
-      }
-    }
     metadata {
       key
       value
     }
   }
 }
-    `;
+    ${PaymentFieldsFragmentDoc}`;
 
 /**
  * __useChargeQuery__

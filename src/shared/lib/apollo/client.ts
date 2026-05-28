@@ -18,7 +18,23 @@ const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
 
 export const apolloClient = new ApolloClient({
   link: from([errorLink, httpLink]),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          charges: {
+            keyArgs: ["search", "filter"],
+          },
+        },
+      },
+    },
+  }),
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: "cache-and-network",
+      errorPolicy: "all",
+    },
+  },
   connectToDevTools: true,
 });
 

@@ -2,7 +2,6 @@ import { useNavigate } from "@tanstack/react-router";
 import { endOfDay, format as formatDate, parseISO, startOfDay } from "date-fns";
 import { Search } from "lucide-react";
 import { useMemo } from "react";
-import type { DateRange } from "react-day-picker";
 import { Route } from "@/routes/payments.index";
 import { DEFAULT_PAGE_SIZE } from "@/shared/config";
 import {
@@ -16,6 +15,7 @@ import {
 } from "@/shared/hooks";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
+import type { DateRange } from "@/shared/ui/calendar";
 import {
   Card,
   CardContent,
@@ -24,6 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/ui/card";
+import { DateRangePicker } from "@/shared/ui/date-range-picker";
 import { ErrorState } from "@/shared/ui/error-state";
 import { InlineWarning } from "@/shared/ui/inline-warning";
 import { Input } from "@/shared/ui/input";
@@ -31,7 +32,6 @@ import { Pager } from "@/shared/ui/pager";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { PAYMENT, SEARCH_DEBOUNCE_MS, type StatusFilter } from "./constants";
-import { DateRangePicker } from "./date-range-picker";
 import { PaymentRow } from "./payment-row";
 import { PaymentRowSkeleton } from "./payment-row.skeleton";
 import { usePaymentsQuery } from "./use-payments-query";
