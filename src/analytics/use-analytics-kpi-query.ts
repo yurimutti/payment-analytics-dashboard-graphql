@@ -1,10 +1,11 @@
 import type { ResultOf } from "@graphql-typed-document-node/core";
 import { useMemo } from "react";
 import { DEFAULT_CURRENCY } from "@/shared/config";
-import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
+import { getApolloErrorMessage } from "@/shared/lib/apollo";
 import { daysAgo } from "@/shared/lib/date";
 import { graphql } from "@/shared/lib/graphql";
 import type { DateRangeOption } from "./analytics-types";
+import { useAnalyticsKpiQuery } from "./use-analytics-kpi-query.generated";
 
 type ChartInterval = "day" | "week" | "month";
 
@@ -56,7 +57,7 @@ export type AnalyticsData = NonNullable<
 >;
 export type KPIDataPoint = AnalyticsData["data"][number];
 
-export function useAnalyticsKpiQuery({ range }: { range: DateRangeOption }) {
+export function useAnalyticsKpi({ range }: { range: DateRangeOption }) {
   const variables = useMemo(
     () => ({
       start: Math.floor(daysAgo(range).getTime() / 1000),
@@ -67,11 +68,9 @@ export function useAnalyticsKpiQuery({ range }: { range: DateRangeOption }) {
     [range],
   );
 
-  const query = useQuery(ANALYTICS_KPI_QUERY, {
+  const query = useAnalyticsKpiQuery({
     variables,
-    errorPolicy: "all",
     notifyOnNetworkStatusChange: true,
-    fetchPolicy: "cache-and-network",
   });
 
   const analytics = query.data?.chargesDateRangeKPI ?? null;

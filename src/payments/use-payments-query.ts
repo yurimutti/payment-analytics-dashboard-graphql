@@ -1,7 +1,8 @@
 import type { ResultOf } from "@graphql-typed-document-node/core";
-import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
+import { getApolloErrorMessage } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
-import { PAYMENT, type StatusFilter } from "./constants";
+import { PAGE_SIZE, PAYMENT, type StatusFilter } from "./constants";
+import { useChargesQuery } from "./use-payments-query.generated";
 
 export const CHARGES_QUERY = graphql(`
   query Charges(
@@ -40,28 +41,40 @@ interface UsePaymentsQueryParams {
 }
 
 export function usePaymentsQuery({ search, status, size }: UsePaymentsQueryParams) {
-  const query = useQuery(CHARGES_QUERY, {
+  const query = useChargesQuery({
     variables: {
       search: search || undefined,
       filter: status !== PAYMENT.STATUS.ALL ? { status: { eq: status } } : undefined,
       size,
       from: 0,
     },
-    errorPolicy: "all",
     notifyOnNetworkStatusChange: true,
-    fetchPolicy: "cache-and-network",
   });
 
   const current = query.data ?? query.previousData;
   const items = current?.charges.items ?? [];
+  const total = current?.charges.total ?? 0;
+
+  const loadMore = () =>
+    query.loadMore(
+      (prev, next) => ({
+        charges: {
+          ...next.charges,
+          items: [...prev.charges.items, ...next.charges.items],
+        },
+      }),
+      { from: items.length, size: PAGE_SIZE },
+    );
 
   return {
     charges: items,
-    total: current?.charges.total ?? 0,
+    total,
     loading: query.loading,
     error: query.error,
     errorMessage: query.error ? getApolloErrorMessage(query.error) : null,
     refetch: query.refetch,
     hasData: items.length > 0,
+    loadMore,
+    hasMore: items.length < total,
   };
 }

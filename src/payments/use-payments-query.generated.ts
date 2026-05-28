@@ -4,6 +4,10 @@ type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 import * as Types from '@/shared/lib/graphql/gql/graphql';
 
+import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
+import * as ApolloReactHooks from '@/shared/lib/apollo';
+const defaultOptions = {} as const;
 /**
  *  Card brand.
  * - `visa` - Visa credit or debit card.
@@ -268,4 +272,75 @@ export type ChargesQueryVariables = Exact<{
 }>;
 
 
-export type ChargesQuery = { charges: { total: number, items: Array<{ id: string, amount: number | null, currency: string, status: Types.ChargeStatus, createdAt: unknown, updatedAt: unknown, orderId: string | null, livemode: boolean | null, customer: { name: string | null, email: string | null, phone: string | null } | null, paymentMethod: { method: Types.PaymentMethods | null, card: { brand: Types.CardBrand | null, last4: string | null, expiration: unknown } | null } | null }> } };
+export type ChargesQuery = { charges: { total: number, items: Array<{ id: string, amount: number | null, currency: string, status: Types.ChargeStatus, createdAt: number | null, updatedAt: number | null, orderId: string | null, livemode: boolean | null, customer: { name: string | null, email: string | null, phone: string | null } | null, paymentMethod: { method: Types.PaymentMethods | null, card: { brand: Types.CardBrand | null, last4: string | null, expiration: number | null } | null } | null }> } };
+
+
+export const ChargesDocument = gql`
+    query Charges($search: String, $filter: SearchableChargeFilterInput, $size: Int, $from: Int) {
+  charges(search: $search, filter: $filter, size: $size, from: $from) {
+    items {
+      id
+      amount
+      currency
+      status
+      createdAt
+      updatedAt
+      orderId
+      livemode
+      customer {
+        name
+        email
+        phone
+      }
+      paymentMethod {
+        method
+        card {
+          brand
+          last4
+          expiration
+        }
+      }
+    }
+    total
+  }
+}
+    `;
+
+/**
+ * __useChargesQuery__
+ *
+ * To run a query within a React component, call `useChargesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChargesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChargesQuery({
+ *   variables: {
+ *      search: // value for 'search'
+ *      filter: // value for 'filter'
+ *      size: // value for 'size'
+ *      from: // value for 'from'
+ *   },
+ * });
+ */
+export function useChargesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ChargesQuery, ChargesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ChargesQuery, ChargesQueryVariables>(ChargesDocument, options);
+      }
+export function useChargesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ChargesQuery, ChargesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ChargesQuery, ChargesQueryVariables>(ChargesDocument, options);
+        }
+// @ts-ignore
+export function useChargesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ChargesQuery, ChargesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ChargesQuery, ChargesQueryVariables>;
+export function useChargesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ChargesQuery, ChargesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ChargesQuery | undefined, ChargesQueryVariables>;
+export function useChargesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ChargesQuery, ChargesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useSuspenseQuery<ChargesQuery, ChargesQueryVariables>(ChargesDocument, options);
+        }
+export type ChargesQueryHookResult = ReturnType<typeof useChargesQuery>;
+export type ChargesLazyQueryHookResult = ReturnType<typeof useChargesLazyQuery>;
+export type ChargesSuspenseQueryHookResult = ReturnType<typeof useChargesSuspenseQuery>;
+export type ChargesQueryResult = Apollo.QueryResult<ChargesQuery, ChargesQueryVariables>;

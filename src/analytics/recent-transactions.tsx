@@ -16,7 +16,7 @@ import {
 import { ErrorState } from "@/shared/ui/error-state";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { TransactionSkeleton } from "./transaction.skeleton";
-import { type RecentCharge as Charge, useRecentChargesQuery } from "./use-recent-charges-query";
+import { type RecentCharge as Charge, useRecentCharges } from "./use-recent-charges-query";
 
 function getInitials(charge: Charge): string {
   const name = charge.customer?.name;
@@ -39,7 +39,7 @@ function getEmail(charge: Charge): string {
   return charge.customer?.email ?? charge.orderId ?? "—";
 }
 export function RecentTransactions() {
-  const { charges, loading, error, errorMessage, refetch, hasData } = useRecentChargesQuery();
+  const { charges, loading, error, errorMessage, refetch, hasData } = useRecentCharges();
 
   if (loading && !hasData) {
     return (

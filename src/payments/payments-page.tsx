@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
-import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
+import { useDebounce } from "@/shared/hooks";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -16,13 +16,7 @@ import { InlineWarning } from "@/shared/ui/inline-warning";
 import { Input } from "@/shared/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
-import {
-  DEFAULT_PAGE,
-  PAGE_SIZE,
-  PAYMENT,
-  SEARCH_DEBOUNCE_MS,
-  type StatusFilter,
-} from "./constants";
+import { PAGE_SIZE, PAYMENT, SEARCH_DEBOUNCE_MS, type StatusFilter } from "./constants";
 import { PaymentRow } from "./payment-row";
 import { PaymentRowSkeleton } from "./payment-row.skeleton";
 import { usePaymentsQuery } from "./use-payments-query";
@@ -114,35 +108,34 @@ function FilterBar({
 }
 
 export function PaymentsPage() {
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState<StatusFilter>(PAYMENT.STATUS.ALL);
-  const [page, setPage] = useState(DEFAULT_PAGE);
 
-  const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
+  const debouncedSetSearch = useDebounce<string>(setDebouncedSearch, SEARCH_DEBOUNCE_MS);
 
-  const { charges, total, loading, error, errorMessage, refetch, hasData } = usePaymentsQuery({
-    search: debouncedSearch,
-    status,
-    size: PAGE_SIZE * page,
-  });
+  const { charges, loading, error, errorMessage, refetch, hasData, loadMore, hasMore } =
+    usePaymentsQuery({
+      search: debouncedSearch,
+      status,
+      size: PAGE_SIZE,
+    });
 
-  const hasMore = charges.length < total;
   const hasFilters = debouncedSearch !== "" || status !== PAYMENT.STATUS.ALL;
 
   function handleSearchChange(value: string) {
-    setSearch(value);
-    setPage(DEFAULT_PAGE);
+    setSearchInput(value);
+    debouncedSetSearch(value);
   }
 
   function handleStatusChange(value: StatusFilter) {
     setStatus(value);
-    setPage(DEFAULT_PAGE);
   }
 
   function clearFilters() {
-    setSearch("");
+    setSearchInput("");
+    setDebouncedSearch("");
     setStatus(PAYMENT.STATUS.ALL);
-    setPage(DEFAULT_PAGE);
   }
 
   const description = loading ? (
@@ -164,7 +157,7 @@ export function PaymentsPage() {
             <CardDescription>{description}</CardDescription>
           </div>
           <FilterBar
-            search={search}
+            search={searchInput}
             status={status}
             hasFilters={hasFilters}
             onSearchChange={handleSearchChange}
@@ -213,7 +206,7 @@ export function PaymentsPage() {
                 variant="outline"
                 size="sm"
                 className="cursor-pointer"
-                onClick={() => setPage((p) => p + 1)}
+                onClick={() => loadMore()}
               >
                 Load more
               </Button>

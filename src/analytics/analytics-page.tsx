@@ -6,12 +6,12 @@ import { AnalyticsSectionCards } from "./analytics-section-cards";
 import type { DateRangeOption } from "./analytics-types";
 import { DEFAULT_RANGE_DAYS } from "./constants";
 import { RecentTransactions } from "./recent-transactions";
-import { useAnalyticsKpiQuery } from "./use-analytics-kpi-query";
+import { useAnalyticsKpi } from "./use-analytics-kpi-query";
 
 export function AnalyticsPage() {
   const [range, setRange] = useState<DateRangeOption>(DEFAULT_RANGE_DAYS);
 
-  const { analytics, loading, error, errorMessage, refetch, hasData } = useAnalyticsKpiQuery({
+  const { analytics, loading, error, errorMessage, refetch, hasData } = useAnalyticsKpi({
     range,
   });
 

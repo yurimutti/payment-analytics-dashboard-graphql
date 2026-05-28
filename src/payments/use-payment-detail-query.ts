@@ -1,6 +1,7 @@
 import type { ResultOf } from "@graphql-typed-document-node/core";
-import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
+import { getApolloErrorMessage } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
+import { useChargeQuery } from "./use-payment-detail-query.generated";
 
 const CHARGE_QUERY = graphql(`
   query Charge($id: ID!) {
@@ -31,10 +32,8 @@ const CHARGE_QUERY = graphql(`
 export type ChargeDetail = NonNullable<ResultOf<typeof CHARGE_QUERY>["charge"]>;
 
 export function usePaymentDetailQuery(id: string) {
-  const query = useQuery(CHARGE_QUERY, {
+  const query = useChargeQuery({
     variables: { id },
-    errorPolicy: "all",
-    fetchPolicy: "cache-and-network",
   });
 
   const payment = query.data?.charge ?? null;
