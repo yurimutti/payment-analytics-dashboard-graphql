@@ -1,5 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
+import { endOfDay, format as formatDate, parseISO, startOfDay } from "date-fns";
 import { Search } from "lucide-react";
+import { useMemo } from "react";
+import type { DateRange } from "react-day-picker";
 import { Route } from "@/routes/payments.index";
 import { DEFAULT_PAGE_SIZE } from "@/shared/config";
 import {
@@ -28,6 +31,7 @@ import { Pager } from "@/shared/ui/pager";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { PAYMENT, SEARCH_DEBOUNCE_MS, type StatusFilter } from "./constants";
+import { DateRangePicker } from "./date-range-picker";
 import { PaymentRow } from "./payment-row";
 import { PaymentRowSkeleton } from "./payment-row.skeleton";
 import { usePaymentsQuery } from "./use-payments-query";
@@ -70,18 +74,24 @@ function EmptyState({ hasFilters, onClear }: { hasFilters: boolean; onClear: () 
 interface FilterBarProps {
   search: string;
   status: StatusFilter;
+  dateRange: DateRange | undefined;
   hasFilters: boolean;
   onSearchChange: (v: string) => void;
   onStatusChange: (v: StatusFilter) => void;
+  onDateRangeChange: (range: DateRange | undefined) => void;
+  onDateRangeClear: () => void;
   onClear: () => void;
 }
 
 function FilterBar({
   search,
   status,
+  dateRange,
   hasFilters,
   onSearchChange,
   onStatusChange,
+  onDateRangeChange,
+  onDateRangeClear,
   onClear,
 }: FilterBarProps) {
   return (
@@ -109,6 +119,8 @@ function FilterBar({
         </SelectContent>
       </Select>
 
+      <DateRangePicker value={dateRange} onChange={onDateRangeChange} onClear={onDateRangeClear} />
+
       {hasFilters && (
         <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={onClear}>
           Clear
@@ -124,6 +136,23 @@ export function PaymentsPage() {
 
   const urlSearch = queryString.search ?? "";
   const urlStatus = queryString.status ?? PAYMENT.STATUS.ALL;
+  const urlCreatedFrom = queryString.createdFrom;
+  const urlCreatedTo = queryString.createdTo;
+
+  const dateRange = useMemo<DateRange | undefined>(() => {
+    if (!urlCreatedFrom && !urlCreatedTo) return undefined;
+    return {
+      from: urlCreatedFrom ? parseISO(urlCreatedFrom) : undefined,
+      to: urlCreatedTo ? parseISO(urlCreatedTo) : undefined,
+    };
+  }, [urlCreatedFrom, urlCreatedTo]);
+
+  const createdFromUnix = urlCreatedFrom
+    ? Math.floor(startOfDay(parseISO(urlCreatedFrom)).getTime() / 1000)
+    : undefined;
+  const createdToUnix = urlCreatedTo
+    ? Math.floor(endOfDay(parseISO(urlCreatedTo)).getTime() / 1000)
+    : undefined;
 
   const paginationState = createPaginationState(DEFAULT_PAGE_SIZE, queryString);
 
@@ -163,6 +192,34 @@ export function PaymentsPage() {
     });
   }
 
+  function writeDateRange(range: DateRange | undefined) {
+    navigate({
+      to: "/payments",
+      search: (s) => ({
+        ...s,
+        createdFrom: range?.from ? formatDate(range.from, "yyyy-MM-dd") : undefined,
+        createdTo: range?.to ? formatDate(range.to, "yyyy-MM-dd") : undefined,
+        after: undefined,
+        before: undefined,
+      }),
+      replace: true,
+    });
+  }
+
+  function clearDateRange() {
+    navigate({
+      to: "/payments",
+      search: (s) => ({
+        ...s,
+        createdFrom: undefined,
+        createdTo: undefined,
+        after: undefined,
+        before: undefined,
+      }),
+      replace: true,
+    });
+  }
+
   function clearFilters() {
     resetSearch();
     navigate({
@@ -177,6 +234,8 @@ export function PaymentsPage() {
     status: urlStatus,
     from,
     size,
+    createdFrom: createdFromUnix,
+    createdTo: createdToUnix,
   });
 
   const pageInfo: PageInfo = {
@@ -196,7 +255,7 @@ export function PaymentsPage() {
   });
 
   usePaginationReset({
-    resetKeys: [urlSearch, urlStatus, size],
+    resetKeys: [urlSearch, urlStatus, urlCreatedFrom, urlCreatedTo, size],
     onReset: () => {
       navigate({
         to: "/payments",
@@ -206,7 +265,11 @@ export function PaymentsPage() {
     },
   });
 
-  const hasFilters = urlSearch !== "" || urlStatus !== PAYMENT.STATUS.ALL;
+  const hasFilters =
+    urlSearch !== "" ||
+    urlStatus !== PAYMENT.STATUS.ALL ||
+    urlCreatedFrom !== undefined ||
+    urlCreatedTo !== undefined;
 
   const description = loading ? (
     <Skeleton className="mt-1 h-4 w-20" />
@@ -232,7 +295,10 @@ export function PaymentsPage() {
             <FilterBar
               search={searchInput}
               status={urlStatus}
+              dateRange={dateRange}
               hasFilters={hasFilters}
+              onDateRangeChange={writeDateRange}
+              onDateRangeClear={clearDateRange}
               onSearchChange={(v) =>
                 change({ target: { value: v } } as React.ChangeEvent<HTMLInputElement>)
               }

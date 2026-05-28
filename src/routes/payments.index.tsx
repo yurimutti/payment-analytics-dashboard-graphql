@@ -16,6 +16,8 @@ const STATUSES = [
   "PAID_OUT",
 ] as const;
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
 const SearchSchema = z.object({
   after: z.string().optional(),
   before: z.string().optional(),
@@ -23,6 +25,8 @@ const SearchSchema = z.object({
   last: z.coerce.number().int().positive().optional(),
   search: z.string().optional(),
   status: z.enum(STATUSES).optional(),
+  createdFrom: z.string().regex(ISO_DATE).optional(),
+  createdTo: z.string().regex(ISO_DATE).optional(),
 });
 
 export type PaymentsSearch = z.infer<typeof SearchSchema>;

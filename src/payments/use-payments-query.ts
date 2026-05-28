@@ -39,13 +39,39 @@ interface UsePaymentsQueryParams {
   status: StatusFilter;
   from: number;
   size: number;
+  createdFrom?: number;
+  createdTo?: number;
 }
 
-export function usePaymentsQuery({ search, status, from, size }: UsePaymentsQueryParams) {
+export function usePaymentsQuery({
+  search,
+  status,
+  from,
+  size,
+  createdFrom,
+  createdTo,
+}: UsePaymentsQueryParams) {
+  const createdAt =
+    createdFrom !== undefined || createdTo !== undefined
+      ? {
+          ...(createdFrom !== undefined ? { gte: createdFrom } : {}),
+          ...(createdTo !== undefined ? { lte: createdTo } : {}),
+        }
+      : undefined;
+
+  const hasStatus = status !== PAYMENT.STATUS.ALL;
+  const filter =
+    hasStatus || createdAt
+      ? {
+          ...(hasStatus ? { status: { eq: status } } : {}),
+          ...(createdAt ? { createdAt } : {}),
+        }
+      : undefined;
+
   const query = useChargesQuery({
     variables: {
       search: search || undefined,
-      filter: status !== PAYMENT.STATUS.ALL ? { status: { eq: status } } : undefined,
+      filter,
       size,
       from,
     },
