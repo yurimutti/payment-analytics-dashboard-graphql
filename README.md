@@ -29,11 +29,12 @@ React 19 · Vite 6 · Apollo · TanStack Router · Tailwind v4
 | Choice | Why | Tradeoff |
 |---|---|---|
 | **Apollo Client** over `graphql-request` | Normalized cache lets the dashboard KPIs and the payments list share `charges` entries. Per-hook `errorPolicy: "all"` + `fetchPolicy: "cache-and-network"` keep partial data on screen during refetches. | ~40 KB heavier than `graphql-request`; accepted for the cache, reactive updates, and DevTools. |
-| **GraphQL Codegen** (`client-preset` + `near-operation-file`) | Hook signatures and `variables` types track the live schema; `*.generated.ts` sits next to each operation, so deleting a hook removes its types. | Adds a `codegen` step and commits generated files. Beats hand-rolled interfaces that silently drift. |
+| **GraphQL Codegen** (`client-preset` + `near-operation-file` + `typescript-react-apollo`) | Each `*.generated.ts` ships `useFooQuery` plus its document and typed variables, pointing at a thin `useQuery` wrapper (`src/shared/lib/apollo/use-query.ts`) that adds `loadMore` over Apollo's `fetchMore`. Hooks track the schema; deleting an operation removes its hook automatically. | Adds a `codegen` step and commits generated files. Beats hand-rolled hooks that silently drift. |
 | **Vertical slices** (`src/<feature>/`) | Each feature (`analytics`, `payments`) owns its hooks, components, skeletons, generated types, and tests in one folder. Deleting a feature = `rm -rf src/<feature>/`. | Some cross-feature duplication vs a layered `components/hooks/services/` split. For a 2-feature surface, ownership wins. |
 | **Biome** for lint + format | One binary, one config; replaces ESLint + Prettier + the `eslint-*` plugin tree. Fast enough to run on every save. | Smaller rule ecosystem than ESLint; we lose a few niche plugins, none needed here. |
 | **`@t3-oss/env-core` + Zod** | `VITE_GRAPHQL_ENDPOINT` is parsed as a URL at startup — failures show a typed message instead of a runtime `undefined is not a URL`. | One tiny dep and a schema file. |
 | **TanStack Router** (file-based) | Routes are typed end-to-end; `routeTree.gen.ts` powers IDE autocomplete on `<Link to=...>` and `useParams()`. | Adds `tsr generate` to `prebuild`. React Router would be lighter on tooling, heavier on runtime config. |
+| **Offset pagination + Prev/Next via URL** | API exposes `from` + `size` (no cursor). URL keeps cursor-shaped params (`?after=10&first=10`) that translate to offset before the query, and a `PaginatorContext` decouples Prev/Next rendering from the page. Bookmarkable views, browser-back, filter/sort compose naturally. | Offset can shift under heavy concurrent inserts — not a concern at dashboard scale. Picked over infinite scroll: tables benefit more from predictable navigation than feed-style accumulation. |
 
 ### Library picks (smaller calls)
 
@@ -59,7 +60,7 @@ React 19 · Vite 6 · Apollo · TanStack Router · Tailwind v4
 
 A page calls its per-slice **hook** (`use-*-query.ts`) — the hook wraps Apollo's `useQuery` and parses errors into a friendly message. **Apollo Client** holds the normalized cache and follows `cache-and-network` + `errorPolicy: "all"` (so partial data still renders). On dev, requests go to `/api/graphql`, which the **Vite proxy** rewrites onto the upstream **GraphQL API** with an `Authorization: API_KEY` header that never reaches the browser bundle.
 
-**GraphQL Codegen** feeds typed `data` + `variables` into every hook at build time. **T3-env + Zod** validates `VITE_GRAPHQL_ENDPOINT` at startup. **Vitest + RTL** swap Apollo with `MockedProvider` for unit/behavior tests; **Playwright** hits the real path through the Vite proxy.
+**GraphQL Codegen** (`typescript-react-apollo`) generates each `use*Query` hook plus its document and types at build time; the hook calls our `useQuery` wrapper (`loadMore` over `fetchMore`). **T3-env + Zod** validates `VITE_GRAPHQL_ENDPOINT` at startup. **Vitest + RTL** swap Apollo with `MockedProvider` for unit/behavior tests; **Playwright** hits the real path through the Vite proxy.
 
 ---
 
@@ -84,7 +85,7 @@ npm run dev                # http://localhost:5173
 ## Stack
 
 - **React 19** + **TypeScript 5.8** + **Vite 6**
-- **Apollo Client 3.13** + **GraphQL Code Generator** (`client-preset` + `near-operation-file`)
+- **Apollo Client 3.13** + **GraphQL Code Generator** (`client-preset` + `near-operation-file` + `typescript-react-apollo` for hook generation)
 - **`@0no-co/graphqlsp`** — TS LSP plugin for inline `graphql(\`…\`)` autocomplete + schema validation
 - **TanStack Router** (file-based) + **`routeTree.gen.ts`**
 - **Tailwind CSS v4** + **shadcn/ui** + **Recharts**
@@ -103,7 +104,7 @@ npm run dev                # http://localhost:5173
 | `typecheck` | `tsc --noEmit` |
 | `codegen` / `codegen:watch` | GraphQL types |
 | `lint` / `format` / `check` / `check:fix` | Biome |
-| `test` / `test:watch` / `test:ui` | Vitest — 27 tests |
+| `test` / `test:watch` / `test:ui` | Vitest — 45 tests |
 | `test:e2e` / `test:e2e:ui` / `test:e2e:report` | Playwright — 2 specs |
 
 Run both test layers:
