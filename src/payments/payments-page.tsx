@@ -1,6 +1,16 @@
+import { useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
-import { useState } from "react";
-import { useDebounce } from "@/shared/hooks";
+import { Route } from "@/routes/payments.index";
+import { DEFAULT_PAGE_SIZE } from "@/shared/config";
+import {
+  createPaginationState,
+  type PageInfo,
+  PaginatorContext,
+  useDebounce,
+  usePaginationReset,
+  usePaginator,
+  useSearchQuery,
+} from "@/shared/hooks";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -14,9 +24,10 @@ import {
 import { ErrorState } from "@/shared/ui/error-state";
 import { InlineWarning } from "@/shared/ui/inline-warning";
 import { Input } from "@/shared/ui/input";
+import { Pager } from "@/shared/ui/pager";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { PAGE_SIZE, PAYMENT, SEARCH_DEBOUNCE_MS, type StatusFilter } from "./constants";
+import { PAYMENT, SEARCH_DEBOUNCE_MS, type StatusFilter } from "./constants";
 import { PaymentRow } from "./payment-row";
 import { PaymentRowSkeleton } from "./payment-row.skeleton";
 import { usePaymentsQuery } from "./use-payments-query";
@@ -108,112 +119,165 @@ function FilterBar({
 }
 
 export function PaymentsPage() {
-  const [searchInput, setSearchInput] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [status, setStatus] = useState<StatusFilter>(PAYMENT.STATUS.ALL);
+  const queryString = Route.useSearch();
+  const navigate = useNavigate();
 
-  const debouncedSetSearch = useDebounce<string>(setDebouncedSearch, SEARCH_DEBOUNCE_MS);
+  const urlSearch = queryString.search ?? "";
+  const urlStatus = queryString.status ?? PAYMENT.STATUS.ALL;
 
-  const { charges, loading, error, errorMessage, refetch, hasData, loadMore, hasMore } =
-    usePaymentsQuery({
-      search: debouncedSearch,
-      status,
-      size: PAGE_SIZE,
+  const paginationState = createPaginationState(DEFAULT_PAGE_SIZE, queryString);
+
+  const from = paginationState.after
+    ? Number.parseInt(paginationState.after, 10)
+    : paginationState.before
+      ? Math.max(0, Number.parseInt(paginationState.before, 10) - (paginationState.last ?? 0))
+      : 0;
+  const size = paginationState.first ?? paginationState.last ?? DEFAULT_PAGE_SIZE;
+  const currentPage = Math.floor(from / size) + 1;
+
+  const writeSearch = useDebounce<string>((value: string) => {
+    navigate({
+      to: "/payments",
+      search: (s) => ({
+        ...s,
+        search: value || undefined,
+        after: undefined,
+        before: undefined,
+      }),
+      replace: true,
     });
+  }, SEARCH_DEBOUNCE_MS);
 
-  const hasFilters = debouncedSearch !== "" || status !== PAYMENT.STATUS.ALL;
+  const [searchInput, change, resetSearch] = useSearchQuery(writeSearch, urlSearch);
 
-  function handleSearchChange(value: string) {
-    setSearchInput(value);
-    debouncedSetSearch(value);
-  }
-
-  function handleStatusChange(value: StatusFilter) {
-    setStatus(value);
+  function writeStatus(value: StatusFilter) {
+    navigate({
+      to: "/payments",
+      search: (s) => ({
+        ...s,
+        status: value !== PAYMENT.STATUS.ALL ? value : undefined,
+        after: undefined,
+        before: undefined,
+      }),
+      replace: true,
+    });
   }
 
   function clearFilters() {
-    setSearchInput("");
-    setDebouncedSearch("");
-    setStatus(PAYMENT.STATUS.ALL);
+    resetSearch();
+    navigate({
+      to: "/payments",
+      search: () => ({}),
+      replace: true,
+    });
   }
+
+  const { charges, total, loading, error, errorMessage, refetch, hasData } = usePaymentsQuery({
+    search: urlSearch || undefined,
+    status: urlStatus,
+    from,
+    size,
+  });
+
+  const pageInfo: PageInfo = {
+    endCursor: String(from + charges.length),
+    startCursor: String(from),
+    hasNextPage: from + charges.length < total,
+    hasPreviousPage: from > 0,
+  };
+
+  const paginator = usePaginator({
+    pageInfo,
+    paginationState,
+    queryString: {
+      after: queryString.after,
+      before: queryString.before,
+    },
+  });
+
+  usePaginationReset({
+    resetKeys: [urlSearch, urlStatus, size],
+    onReset: () => {
+      navigate({
+        to: "/payments",
+        search: (s) => ({ ...s, after: undefined, before: undefined }),
+        replace: true,
+      });
+    },
+  });
+
+  const hasFilters = urlSearch !== "" || urlStatus !== PAYMENT.STATUS.ALL;
 
   const description = loading ? (
     <Skeleton className="mt-1 h-4 w-20" />
   ) : (
-    `${charges.length} payment${charges.length !== 1 ? "s" : ""}`
+    `${total} payment${total !== 1 ? "s" : ""}`
   );
 
   return (
-    <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
-      {error && hasData && (
-        <InlineWarning>Some payment data may be incomplete. Try refreshing the page.</InlineWarning>
-      )}
+    <PaginatorContext.Provider value={paginator}>
+      <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
+        {error && hasData && (
+          <InlineWarning>
+            Some payment data may be incomplete. Try refreshing the page.
+          </InlineWarning>
+        )}
 
-      <Card className="cursor-default">
-        <CardHeader className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 space-y-0 pb-4">
-          <div>
-            <CardTitle>All Transactions</CardTitle>
-            <CardDescription>{description}</CardDescription>
-          </div>
-          <FilterBar
-            search={searchInput}
-            status={status}
-            hasFilters={hasFilters}
-            onSearchChange={handleSearchChange}
-            onStatusChange={handleStatusChange}
-            onClear={clearFilters}
-          />
-        </CardHeader>
-
-        <CardContent className="space-y-3">
-          {loading && (
-            <div className="space-y-3">
-              {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-                <PaymentRowSkeleton key={i} />
-              ))}
+        <Card className="cursor-default">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 space-y-0 pb-4">
+            <div>
+              <CardTitle>All Transactions</CardTitle>
+              <CardDescription>{description}</CardDescription>
             </div>
-          )}
-
-          {!loading && error && !hasData && (
-            <ErrorState
-              title="Could not load payments"
-              description={errorMessage}
-              onRetry={() => refetch()}
+            <FilterBar
+              search={searchInput}
+              status={urlStatus}
+              hasFilters={hasFilters}
+              onSearchChange={(v) =>
+                change({ target: { value: v } } as React.ChangeEvent<HTMLInputElement>)
+              }
+              onStatusChange={writeStatus}
+              onClear={clearFilters}
             />
-          )}
+          </CardHeader>
 
-          {!loading && !error && !hasData && (
-            <EmptyState hasFilters={hasFilters} onClear={clearFilters} />
-          )}
+          <CardContent className="space-y-3">
+            {loading && (
+              <div className="space-y-3">
+                {Array.from({ length: size }).map((_, i) => (
+                  <PaymentRowSkeleton key={i} />
+                ))}
+              </div>
+            )}
+
+            {!loading && error && !hasData && (
+              <ErrorState
+                title="Could not load payments"
+                description={errorMessage}
+                onRetry={() => refetch()}
+              />
+            )}
+
+            {!loading && !error && !hasData && (
+              <EmptyState hasFilters={hasFilters} onClear={clearFilters} />
+            )}
+
+            {!loading && hasData && (
+              <div className="space-y-3">
+                {charges.map((charge) => (
+                  <PaymentRow key={charge.id} charge={charge} />
+                ))}
+              </div>
+            )}
+          </CardContent>
 
           {!loading && hasData && (
-            <div className="space-y-3">
-              {charges.map((charge) => (
-                <PaymentRow key={charge.id} charge={charge} />
-              ))}
-            </div>
+            <CardFooter className="border-t pt-4">
+              <Pager to="/payments" total={total} pageSize={size} currentPage={currentPage} />
+            </CardFooter>
           )}
-        </CardContent>
-
-        {!loading && hasData && (
-          <CardFooter className="flex items-center justify-between border-t pt-4">
-            <p className="text-xs text-muted-foreground">
-              Showing {charges.length} payment{charges.length !== 1 ? "s" : ""}
-            </p>
-            {hasMore && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="cursor-pointer"
-                onClick={() => loadMore()}
-              >
-                Load more
-              </Button>
-            )}
-          </CardFooter>
-        )}
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </PaginatorContext.Provider>
   );
 }

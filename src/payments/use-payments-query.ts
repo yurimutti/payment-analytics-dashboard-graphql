@@ -1,7 +1,7 @@
 import type { ResultOf } from "@graphql-typed-document-node/core";
 import { getApolloErrorMessage } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
-import { PAGE_SIZE, PAYMENT, type StatusFilter } from "./constants";
+import { PAYMENT, type StatusFilter } from "./constants";
 import { useChargesQuery } from "./use-payments-query.generated";
 
 export const CHARGES_QUERY = graphql(`
@@ -37,16 +37,17 @@ export type Charge = ResultOf<typeof CHARGES_QUERY>["charges"]["items"][number];
 interface UsePaymentsQueryParams {
   search?: string;
   status: StatusFilter;
+  from: number;
   size: number;
 }
 
-export function usePaymentsQuery({ search, status, size }: UsePaymentsQueryParams) {
+export function usePaymentsQuery({ search, status, from, size }: UsePaymentsQueryParams) {
   const query = useChargesQuery({
     variables: {
       search: search || undefined,
       filter: status !== PAYMENT.STATUS.ALL ? { status: { eq: status } } : undefined,
       size,
-      from: 0,
+      from,
     },
     notifyOnNetworkStatusChange: true,
   });
@@ -54,17 +55,6 @@ export function usePaymentsQuery({ search, status, size }: UsePaymentsQueryParam
   const current = query.data ?? query.previousData;
   const items = current?.charges.items ?? [];
   const total = current?.charges.total ?? 0;
-
-  const loadMore = () =>
-    query.loadMore(
-      (prev, next) => ({
-        charges: {
-          ...next.charges,
-          items: [...prev.charges.items, ...next.charges.items],
-        },
-      }),
-      { from: items.length, size: PAGE_SIZE },
-    );
 
   return {
     charges: items,
@@ -74,7 +64,5 @@ export function usePaymentsQuery({ search, status, size }: UsePaymentsQueryParam
     errorMessage: query.error ? getApolloErrorMessage(query.error) : null,
     refetch: query.refetch,
     hasData: items.length > 0,
-    loadMore,
-    hasMore: items.length < total,
   };
 }
