@@ -1,5 +1,6 @@
 export type { ApolloError, OperationVariables, QueryResult } from "@apollo/client";
 export { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client";
-export { getApolloErrorMessage } from "./apollo-error";
+export { getApolloErrorMessage, parseGraphQLError } from "./apollo-error";
 export { apolloClient } from "./client";
+export { ErrorCode, type ParsedError } from "./error-codes";
 export { ApolloProvider } from "./provider";
