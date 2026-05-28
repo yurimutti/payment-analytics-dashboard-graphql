@@ -1,7 +1,6 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
-import type { ChargeStatus } from "@/shared/lib/graphql/gql/graphql";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -17,13 +16,19 @@ import { InlineWarning } from "@/shared/ui/inline-warning";
 import { Input } from "@/shared/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { PAGE_SIZE, SEARCH_DEBOUNCE_MS } from "./constants";
+import {
+  DEFAULT_PAGE,
+  PAGE_SIZE,
+  PAYMENT,
+  SEARCH_DEBOUNCE_MS,
+  type StatusFilter,
+} from "./constants";
 import { PaymentRow } from "./payment-row";
 import { PaymentRowSkeleton } from "./payment-row.skeleton";
 import { usePaymentsQuery } from "./use-payments-query";
 
-const ALL_STATUSES: { value: ChargeStatus | "ALL"; label: string }[] = [
-  { value: "ALL", label: "All statuses" },
+const ALL_STATUSES: { value: StatusFilter; label: string }[] = [
+  { value: PAYMENT.STATUS.ALL, label: "All statuses" },
   { value: "SUCCEEDED", label: "Succeeded" },
   { value: "PENDING", label: "Pending" },
   { value: "PENDING_PROCESSING", label: "Processing" },
@@ -59,10 +64,10 @@ function EmptyState({ hasFilters, onClear }: { hasFilters: boolean; onClear: () 
 
 interface FilterBarProps {
   search: string;
-  status: ChargeStatus | "ALL";
+  status: StatusFilter;
   hasFilters: boolean;
   onSearchChange: (v: string) => void;
-  onStatusChange: (v: ChargeStatus | "ALL") => void;
+  onStatusChange: (v: StatusFilter) => void;
   onClear: () => void;
 }
 
@@ -86,7 +91,7 @@ function FilterBar({
         />
       </div>
 
-      <Select value={status} onValueChange={(v) => onStatusChange(v as ChargeStatus | "ALL")}>
+      <Select value={status} onValueChange={(v) => onStatusChange(v as StatusFilter)}>
         <SelectTrigger className="h-8 w-full sm:w-36 text-xs cursor-pointer">
           <SelectValue />
         </SelectTrigger>
@@ -110,8 +115,8 @@ function FilterBar({
 
 export function PaymentsPage() {
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<ChargeStatus | "ALL">("ALL");
-  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState<StatusFilter>(PAYMENT.STATUS.ALL);
+  const [page, setPage] = useState(DEFAULT_PAGE);
 
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
 
@@ -122,94 +127,33 @@ export function PaymentsPage() {
   });
 
   const hasMore = charges.length < total;
-  const hasFilters = debouncedSearch !== "" || status !== "ALL";
+  const hasFilters = debouncedSearch !== "" || status !== PAYMENT.STATUS.ALL;
 
   function handleSearchChange(value: string) {
     setSearch(value);
-    setPage(1);
+    setPage(DEFAULT_PAGE);
   }
 
-  function handleStatusChange(value: ChargeStatus | "ALL") {
+  function handleStatusChange(value: StatusFilter) {
     setStatus(value);
-    setPage(1);
+    setPage(DEFAULT_PAGE);
   }
 
   function clearFilters() {
     setSearch("");
-    setStatus("ALL");
-    setPage(1);
+    setStatus(PAYMENT.STATUS.ALL);
+    setPage(DEFAULT_PAGE);
   }
 
-  if (loading && !hasData) {
-    return (
-      <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
-        <Card className="cursor-default">
-          <CardHeader className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 space-y-0 pb-4">
-            <div>
-              <CardTitle>All Transactions</CardTitle>
-              <CardDescription>
-                <Skeleton className="mt-1 h-4 w-20" />
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-              <PaymentRowSkeleton key={i} />
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (error && !hasData) {
-    return (
-      <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
-        <Card className="cursor-default">
-          <CardHeader className="pb-4">
-            <CardTitle>All Transactions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ErrorState
-              title="Could not load payments"
-              description={errorMessage}
-              onRetry={() => refetch()}
-            />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!hasData) {
-    return (
-      <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
-        <Card className="cursor-default">
-          <CardHeader className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 space-y-0 pb-4">
-            <div>
-              <CardTitle>All Transactions</CardTitle>
-              <CardDescription>0 payments</CardDescription>
-            </div>
-            <FilterBar
-              search={search}
-              status={status}
-              hasFilters={hasFilters}
-              onSearchChange={handleSearchChange}
-              onStatusChange={handleStatusChange}
-              onClear={clearFilters}
-            />
-          </CardHeader>
-          <CardContent>
-            <EmptyState hasFilters={hasFilters} onClear={clearFilters} />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const description = loading ? (
+    <Skeleton className="mt-1 h-4 w-20" />
+  ) : (
+    `${charges.length} payment${charges.length !== 1 ? "s" : ""}`
+  );
 
   return (
     <div className="flex-1 space-y-6 px-4 pt-6 pb-10">
-      {error && (
+      {error && hasData && (
         <InlineWarning>Some payment data may be incomplete. Try refreshing the page.</InlineWarning>
       )}
 
@@ -217,9 +161,7 @@ export function PaymentsPage() {
         <CardHeader className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 space-y-0 pb-4">
           <div>
             <CardTitle>All Transactions</CardTitle>
-            <CardDescription>
-              {`${charges.length} payment${charges.length !== 1 ? "s" : ""}`}
-            </CardDescription>
+            <CardDescription>{description}</CardDescription>
           </div>
           <FilterBar
             search={search}
@@ -232,28 +174,52 @@ export function PaymentsPage() {
         </CardHeader>
 
         <CardContent className="space-y-3">
-          <div className="space-y-3">
-            {charges.map((charge) => (
-              <PaymentRow key={charge.id} charge={charge} />
-            ))}
-          </div>
+          {loading && (
+            <div className="space-y-3">
+              {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+                <PaymentRowSkeleton key={i} />
+              ))}
+            </div>
+          )}
+
+          {!loading && error && !hasData && (
+            <ErrorState
+              title="Could not load payments"
+              description={errorMessage}
+              onRetry={() => refetch()}
+            />
+          )}
+
+          {!loading && !error && !hasData && (
+            <EmptyState hasFilters={hasFilters} onClear={clearFilters} />
+          )}
+
+          {!loading && hasData && (
+            <div className="space-y-3">
+              {charges.map((charge) => (
+                <PaymentRow key={charge.id} charge={charge} />
+              ))}
+            </div>
+          )}
         </CardContent>
 
-        <CardFooter className="flex items-center justify-between border-t pt-4">
-          <p className="text-xs text-muted-foreground">
-            Showing {charges.length} payment{charges.length !== 1 ? "s" : ""}
-          </p>
-          {hasMore && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="cursor-pointer"
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Load more
-            </Button>
-          )}
-        </CardFooter>
+        {!loading && hasData && (
+          <CardFooter className="flex items-center justify-between border-t pt-4">
+            <p className="text-xs text-muted-foreground">
+              Showing {charges.length} payment{charges.length !== 1 ? "s" : ""}
+            </p>
+            {hasMore && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="cursor-pointer"
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Load more
+              </Button>
+            )}
+          </CardFooter>
+        )}
       </Card>
     </div>
   );

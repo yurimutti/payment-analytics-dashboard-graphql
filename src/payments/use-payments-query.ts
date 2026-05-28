@@ -1,7 +1,7 @@
 import type { ResultOf } from "@graphql-typed-document-node/core";
 import { getApolloErrorMessage, useQuery } from "@/shared/lib/apollo";
 import { graphql } from "@/shared/lib/graphql";
-import type { ChargeStatus } from "@/shared/lib/graphql/gql/graphql";
+import { PAYMENT, type StatusFilter } from "./constants";
 
 export const CHARGES_QUERY = graphql(`
   query Charges(
@@ -35,7 +35,7 @@ export type Charge = ResultOf<typeof CHARGES_QUERY>["charges"]["items"][number];
 
 interface UsePaymentsQueryParams {
   search?: string;
-  status: ChargeStatus | "ALL";
+  status: StatusFilter;
   size: number;
 }
 
@@ -43,7 +43,7 @@ export function usePaymentsQuery({ search, status, size }: UsePaymentsQueryParam
   const query = useQuery(CHARGES_QUERY, {
     variables: {
       search: search || undefined,
-      filter: status !== "ALL" ? { status: { eq: status } } : undefined,
+      filter: status !== PAYMENT.STATUS.ALL ? { status: { eq: status } } : undefined,
       size,
       from: 0,
     },
@@ -52,11 +52,12 @@ export function usePaymentsQuery({ search, status, size }: UsePaymentsQueryParam
     fetchPolicy: "cache-and-network",
   });
 
-  const items = query.data?.charges.items ?? [];
+  const current = query.data ?? query.previousData;
+  const items = current?.charges.items ?? [];
 
   return {
     charges: items,
-    total: query.data?.charges.total ?? 0,
+    total: current?.charges.total ?? 0,
     loading: query.loading,
     error: query.error,
     errorMessage: query.error ? getApolloErrorMessage(query.error) : null,
